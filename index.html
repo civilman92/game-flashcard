@@ -6,24 +6,58 @@
     <title>英文單字快閃卡遊戲</title>
     <style>
         :root {
-            --primary: #5C6BC0; --success: #66BB6A; --danger: #EF5350; --bg: #F5F7FA;
+            --primary: #5C6BC0;
+            --success: #66BB6A;
+            --danger: #EF5350;
+            --bg: #F5F7FA;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .container { background: white; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-width: 900px; width: 100%; padding: 40px; position: relative; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+            max-width: 900px;
+            width: 100%;
+            padding: 20px 24px;
+        }
 
-        .header { 
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; 
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%); padding: 20px; border-radius: 20px; 
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
         }
-        .progress-info { font-size: 18px; font-weight: bold; color: #333; }
-        .score-board { 
-            display: flex; gap: 10px; padding: 10px 20px; background: rgba(255,255,255,0.9); 
-            border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .progress-info {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
         }
-        .score-icon { 
-            font-size: 28px; transition: all 0.3s; 
-            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        .score-board {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        .score-icon {
+            font-size: 22px;
+            animation: bounceIn 0.5s cubic-bezier(0.68,-0.55,0.265,1.55);
         }
         .trophy { color: #f39c12; }
         .skull { color: #e74c3c; }
@@ -33,98 +67,191 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .panel { display: none; } .active { display: block; }
+        .panel { display: none; }
+        .active { display: block; }
 
-        .image-container { 
-            width: 100%; height: 380px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
-            border-radius: 25px; margin-bottom: 25px; display: flex; align-items: center; 
-            justify-content: center; overflow: hidden; border: 5px solid #e9ecef;
-            position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        /* Image section - 縮小高度 + 去除底層灰色外框 */
+        .image-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 12px;
         }
-        .image-container img { max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .image-placeholder { font-size: 72px; color: #adb5bd; text-align: center; animation: pulse 2s infinite; }
-        .image-status { position: absolute; bottom: 15px; right: 15px; font-size: 13px; color: #666; background: rgba(255,255,255,0.95); padding: 4px 12px; border-radius: 15px; font-weight: 500; }
-        @keyframes pulse { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+        .image-container {
+            width: 100%;
+            max-width: 520px;
+            height: 260px;
+            background: #f5f5f5;
+            border-radius: 16px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+        .image-placeholder {
+            font-size: 50px;
+            color: #adb5bd;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.04); }
+        }
+        .image-status-text {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #555;
+        }
 
-        .chinese-hint { 
-            font-size: 44px; font-weight: 900; text-align: center; margin-bottom: 20px; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        .chinese-hint {
+            font-size: 32px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 8px;
+            color: #333;
         }
 
-        .letter-inputs { display: flex; justify-content: center; gap: 10px; margin: 30px 0; flex-wrap: wrap; }
-        .letter-box { 
-            width: 60px; height: 75px; border: 4px solid #dee2e6; border-radius: 15px; 
-            text-align: center; font-size: 32px; font-weight: 900; text-transform: uppercase; 
-            outline: none; transition: all 0.4s; background: white; cursor: text;
+        .letter-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 14px 0;
+            flex-wrap: wrap;
         }
-        .letter-box:focus { 
-            border-color: var(--primary); background: linear-gradient(135deg, #e8f0fe, #f0f4ff); 
-            transform: scale(1.08); box-shadow: 0 0 0 4px rgba(92,107,192,0.25);
+        .letter-box {
+            width: 46px;
+            height: 58px;
+            border: 3px solid #dee2e6;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            text-transform: uppercase;
+            outline: none;
+            transition: all 0.25s;
+            background: white;
         }
-        .letter-box.correct { 
-            background: linear-gradient(135deg, var(--success), #4caf50); 
-            color: white; border-color: var(--success); animation: correctBounce 0.7s; 
+        .letter-box:focus {
+            border-color: var(--primary);
+            background: #e8f0fe;
+            box-shadow: 0 0 0 3px rgba(92,107,192,0.25);
         }
-        .letter-box.wrong { 
-            background: linear-gradient(135deg, var(--danger), #d32f2f); 
-            color: white; border-color: var(--danger); animation: wrongShake 0.6s; 
+        .letter-box.correct {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
         }
-        @keyframes correctBounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0) scale(1); }
-            40% { transform: translateY(-15px) scale(1.1); }
-            60% { transform: translateY(-8px) scale(1.05); }
-        }
-        @keyframes wrongShake {
-            0%, 100% { transform: translateX(0) rotate(0deg); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px) rotate(-2deg); }
-            20%, 40%, 60%, 80% { transform: translateX(8px) rotate(2deg); }
+        .letter-box.wrong {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
         }
 
         .result-message {
-            text-align: center; font-size: 28px; font-weight: bold; margin: 25px 0; 
-            min-height: 40px; padding: 15px; border-radius: 20px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 8px 0 4px;
+            min-height: 28px;
+            padding: 8px 10px;
+            border-radius: 14px;
         }
-        .result-correct { background: linear-gradient(135deg, #d4edda, #c3e6cb); color: #155724; }
-        .result-wrong { background: linear-gradient(135deg, #f8d7da, #f5c6cb); color: #721c24; }
-
-        .btn { 
-            padding: 16px 45px; border: none; border-radius: 35px; font-size: 20px; 
-            cursor: pointer; font-weight: 700; transition: all 0.3s; 
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15); margin: 10px;
+        .result-correct {
+            background: #d4edda;
+            color: #155724;
         }
-        .btn-primary { background: linear-gradient(135deg, var(--primary), #3f51b5); color: white; }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(92,107,192,0.4); }
-        .btn-speaker { 
-            background: linear-gradient(135deg, #fff176, #fdd835); color: #333; 
-            font-size: 24px; box-shadow: 0 6px 20px rgba(255,235,59,0.4);
-        }
-        .btn-speaker:hover { transform: translateY(-3px); }
-
-        .enter-hint {
-            text-align: center; margin: 15px 0; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); 
-            border-radius: 15px; font-size: 18px; font-weight: 600; color: #1976d2;
+        .result-wrong {
+            background: #f8d7da;
+            color: #721c24;
         }
 
-        .summary-table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .summary-table th, .summary-table td { padding: 20px; border-bottom: 1px solid #eee; text-align: left; }
-        .summary-table th { background: linear-gradient(135deg, var(--primary), #3f51b5); color: white; font-weight: 700; }
-        .status-correct { color: var(--success); font-weight: bold; }
-        .status-wrong { color: var(--danger); font-weight: bold; }
-
-        textarea { 
-            width: 100%; height: 250px; padding: 25px; border-radius: 20px; 
-            border: 4px solid #dee2e6; margin-bottom: 25px; font-size: 16px; 
-            resize: vertical; transition: all 0.3s; line-height: 1.6;
+        .btn {
+            padding: 10px 26px;
+            border: none;
+            border-radius: 22px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.25s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+            margin: 4px;
         }
-        textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 5px rgba(92,107,192,0.15); }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #3f51b5);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(92,107,192,0.4);
+        }
+        .btn-speaker {
+            background: #fff176;
+            color: #333;
+            font-size: 18px;
+            box-shadow: 0 4px 14px rgba(255,235,59,0.4);
+        }
+        .btn-speaker:hover {
+            transform: translateY(-2px);
+        }
 
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .summary-table th, .summary-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .summary-table th {
+            background: linear-gradient(135deg, var(--primary), #3f51b5);
+            color: white;
+            font-weight: 700;
+        }
+        .status-correct { color: var(--success); font-weight: 700; }
+        .status-wrong { color: var(--danger); font-weight: 700; }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 14px;
+            border-radius: 14px;
+            border: 3px solid #dee2e6;
+            margin-bottom: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+        }
+        textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(92,107,192,0.18);
+        }
+
+        /* RWD 調整：在窄螢幕下再縮一點字與高度 */
         @media (max-width: 768px) {
-            .letter-box { width: 50px; height: 65px; font-size: 26px; }
-            .chinese-hint { font-size: 36px; }
-            .score-board { gap: 8px; }
-            .score-icon { font-size: 24px; }
+            .container { padding: 16px; }
+            .image-container { height: 220px; }
+            .chinese-hint { font-size: 26px; }
+            .letter-box { width: 40px; height: 52px; font-size: 20px; }
+            .score-board { padding: 4px 8px; }
+            .score-icon { font-size: 20px; }
+            .btn { font-size: 14px; padding: 8px 20px; }
+            .result-message { font-size: 18px; }
         }
     </style>
 </head>
@@ -132,7 +259,7 @@
 <div class="container">
     <!-- 題庫設定面板 -->
     <div id="setupPanel" class="panel active">
-        <h2 style="text-align: center; margin-bottom: 20px; font-size: 32px;">📚 英文單字快閃卡遊戲</h2>
+        <h2 style="text-align: center; margin-bottom: 10px; font-size: 24px;">📚 英文單字快閃卡遊戲</h2>
         <textarea id="wordInput">apple|蘋果
 banana|香蕉
 computer|電腦
@@ -153,101 +280,96 @@ rabbit|兔子
 school|學校
 tiger|老虎
 umbrella|雨傘</textarea>
-        <button class="btn btn-primary" style="display: block; margin: 0 auto; font-size: 22px; padding: 18px 60px;" onclick="initGame()">🚀 開始挑戰 20 題</button>
+        <div style="text-align:center;">
+            <button class="btn btn-primary" onclick="initGame()">🚀 開始挑戰 20 題</button>
+        </div>
     </div>
 
     <!-- 遊戲面板 -->
     <div id="gamePanel" class="panel">
         <div class="header">
             <div class="progress-info">
-                <div id="questionTitle" style="font-size: 26px; margin-bottom: 5px;">第 1 題</div>
+                <div id="questionTitle" style="font-size: 20px; margin-bottom: 2px;">第 1 題</div>
                 <div>進度: <span id="progressText">0/20</span></div>
             </div>
             <div class="score-board" id="scoreBoard"></div>
         </div>
 
-        <div class="image-container">
-            <img id="wordImage" src="" alt="單字圖片" style="display: none;">
-            <div id="imagePlaceholder" class="image-placeholder" style="display: none;">📷</div>
-            <div id="imageStatus" class="image-status"></div>
+        <div class="image-wrapper">
+            <div class="image-container">
+                <img id="wordImage" src="" alt="單字圖片" style="display:none;">
+                <div id="imagePlaceholder" class="image-placeholder" style="display:none;">📷</div>
+            </div>
+            <div id="imageStatusText" class="image-status-text"></div>
         </div>
         
         <div class="chinese-hint" id="chineseHint">載入中...</div>
         
-        <div style="text-align: center;">
+        <div style="text-align: center; margin-bottom: 4px;">
             <button class="btn btn-speaker" onclick="pronounceWord()">🔊 聽發音</button>
         </div>
 
         <div class="letter-inputs" id="letterInputs"></div>
-
-        <div class="enter-hint" id="enterHint">
-            ⌨️ 填完後按 <strong>Enter</strong> 檢查答案，然後點「下一題」繼續
-        </div>
         
         <div class="result-message" id="resultMessage"></div>
 
-        <div style="text-align:center; margin-top:10px;">
-            <button class="btn btn-primary" id="nextBtn" onclick="goNext()" style="display:none;">
-                ➡️ 下一題
-            </button>
+        <div style="text-align:center; margin-top:4px;">
+            <button class="btn btn-primary" id="actionBtn" onclick="handleAction()">完成</button>
         </div>
     </div>
 
     <!-- 結果面板 -->
     <div id="resultPanel" class="panel">
-        <h2 style="text-align: center; font-size: 36px; margin-bottom: 25px;">🏆 挑戰完成！</h2>
-        <div style="max-height: 550px; overflow-y: auto; margin: 25px 0;">
+        <h2 style="text-align: center; font-size: 26px; margin-bottom: 10px;">🏆 挑戰完成！</h2>
+        <div style="max-height: 360px; overflow-y: auto; margin: 10px 0;">
             <table class="summary-table" id="summaryTable">
                 <thead><tr><th>單字</th><th>正確答案</th><th>您的回答</th><th>狀態</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
-        <button class="btn btn-primary" style="display: block; margin: 0 auto; font-size: 22px; padding: 18px 60px;" onclick="location.reload()">🔄 重新開始</button>
+        <div style="text-align:center; margin-top:6px;">
+            <button class="btn btn-primary" onclick="location.reload()">🔄 重新開始</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // Unsplash API Key（前端曝光僅適合教學/個人小專案）
     const UNSPLASH_ACCESS_KEY = 'XDJVghn6USaEIhWdqnBGQ1f8NXr0BRngG8_kI3eRlgw';
 
     let wordBank = [], gameList = [], currentIdx = 0, results = [], scores = [];
     let imageCache = new Map();
     let answerChecked = false;
 
-    // Enter 只負責檢查答案，下一題使用按鈕
+    // Enter：在遊戲面板時，依狀態觸發「完成」或「下一題」
     document.addEventListener('keydown', function(e) {
-        if (document.getElementById('gamePanel').classList.contains('active') && e.key === 'Enter') {
-            e.preventDefault();
-            if (!answerChecked) {
-                checkAnswer();
-            }
-        }
+        if (!document.getElementById('gamePanel').classList.contains('active')) return;
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        handleAction();
     });
 
     async function loadWordImage(word) {
         const img = document.getElementById('wordImage');
         const placeholder = document.getElementById('imagePlaceholder');
-        const status = document.getElementById('imageStatus');
+        const statusText = document.getElementById('imageStatusText');
 
         if (imageCache.has(word)) {
             img.src = imageCache.get(word);
             img.style.display = 'block';
             placeholder.style.display = 'none';
-            status.textContent = '💾 Unsplash 快取';
+            statusText.textContent = '圖片來源：Unsplash';
             return;
         }
 
         img.style.display = 'none';
         placeholder.style.display = 'block';
-        placeholder.innerHTML = '🔍 Unsplash 搜尋中...';
-        status.textContent = '搜尋中';
+        placeholder.innerHTML = '🔍 圖片載入中...';
+        statusText.textContent = '';
 
         try {
             const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(word)}&per_page=1&orientation=landscape&client_id=${UNSPLASH_ACCESS_KEY}`;
             const res = await fetch(url);
-            if (!res.ok) {
-                throw new Error('Unsplash API error: ' + res.status);
-            }
+            if (!res.ok) throw new Error('Unsplash API error: ' + res.status);
             const data = await res.json();
             if (data.results && data.results.length > 0) {
                 const photo = data.results[0];
@@ -258,34 +380,33 @@ umbrella|雨傘</textarea>
                     img.onload = () => {
                         placeholder.style.display = 'none';
                         img.style.display = 'block';
-                        status.textContent = '✅ Unsplash 圖片';
+                        statusText.textContent = '圖片來源：Unsplash';
                     };
                     img.onerror = () => {
-                        useFallbackSvg(word, img, placeholder, status);
+                        useFallbackSvg(word, img, placeholder, statusText);
                     };
                     return;
                 }
             }
-            // 沒結果 → fallback
-            useFallbackSvg(word, img, placeholder, status);
+            useFallbackSvg(word, img, placeholder, statusText);
         } catch (err) {
             console.error('Unsplash 請求錯誤：', err);
-            useFallbackSvg(word, img, placeholder, status);
+            useFallbackSvg(word, img, placeholder, statusText);
         }
     }
 
-    function useFallbackSvg(word, img, placeholder, status) {
+    function useFallbackSvg(word, img, placeholder, statusText) {
         const svgData = createFallbackSvg(word);
         imageCache.set(word, svgData);
         img.src = svgData;
         img.onload = () => {
             placeholder.style.display = 'none';
             img.style.display = 'block';
-            status.textContent = '🧩 文字圖示';
+            statusText.textContent = '圖片來源：自動產生文字圖示';
         };
         img.onerror = () => {
             placeholder.innerHTML = `📸 ${word.toUpperCase()}`;
-            status.textContent = '顯示失敗';
+            statusText.textContent = '圖片載入失敗';
         };
     }
 
@@ -313,26 +434,25 @@ umbrella|雨傘</textarea>
 
     function initGame() {
         const raw = document.getElementById('wordInput').value.trim();
-        
         wordBank = raw.split('\n').map(line => {
             const parts = line.split('|');
             return { en: parts[0]?.trim().toLowerCase(), ch: parts[1]?.trim() };
         }).filter(item => item.en && item.ch);
 
-        if (wordBank.length < 20) { 
+        if (wordBank.length < 20) {
             alert("請至少輸入 20 個單字！目前只有 " + wordBank.length + " 個");
-            return; 
+            return;
         }
 
         gameList = [...wordBank].sort(() => Math.random() - 0.5).slice(0, 20);
-        imageCache.clear(); 
-        scores = []; 
-        results = []; 
-        currentIdx = 0; 
+        imageCache.clear();
+        scores = [];
+        results = [];
+        currentIdx = 0;
         answerChecked = false;
-        
+
         document.getElementById('scoreBoard').innerHTML = '';
-        
+
         document.getElementById('setupPanel').classList.remove('active');
         document.getElementById('gamePanel').classList.add('active');
         loadQuestion();
@@ -345,54 +465,61 @@ umbrella|雨傘</textarea>
         document.getElementById('chineseHint').textContent = q.ch;
         document.getElementById('resultMessage').textContent = '';
         document.getElementById('resultMessage').className = 'result-message';
-        document.getElementById('enterHint').style.display = 'block';
-        document.getElementById('nextBtn').style.display = 'none';
-        
+        document.getElementById('actionBtn').textContent = '完成';
+
         loadWordImage(q.en);
-        setTimeout(pronounceWord, 800);
+        setTimeout(pronounceWord, 600);
 
         const container = document.getElementById('letterInputs');
         container.innerHTML = '';
-        
+
         let inputCount = 0;
         q.en.split('').forEach((char) => {
             if (char === ' ' || char === '-') {
                 const s = document.createElement('span');
-                s.textContent = char; 
-                s.style.cssText = 'width: 30px; height: 75px; line-height: 75px; display: flex; align-items: center; justify-content: center;';
+                s.textContent = char;
+                s.style.cssText = 'width:24px;height:58px;display:flex;align-items:center;justify-content:center;';
                 container.appendChild(s);
             } else {
                 const input = document.createElement('input');
-                input.className = 'letter-box'; 
-                input.maxLength = 1; 
+                input.className = 'letter-box';
+                input.maxLength = 1;
                 input.dataset.index = inputCount++;
                 input.addEventListener('input', handleInput);
                 container.appendChild(input);
             }
         });
-        
+
         document.querySelectorAll('.letter-box').forEach(box => {
             box.disabled = false;
             box.className = 'letter-box';
             box.value = '';
         });
-        
+
         answerChecked = false;
         setTimeout(() => {
             const firstInput = container.querySelector('input');
             if (firstInput) firstInput.focus();
-        }, 500);
+        }, 300);
     }
 
     function handleInput(e) {
         const input = e.target;
         let value = input.value.toLowerCase().replace(/[^a-z]/g, '');
         input.value = value ? value.toUpperCase() : '';
-        
+
         if (input.value) {
             const nextIdx = parseInt(input.dataset.index) + 1;
             const nextInput = document.querySelector(`.letter-box[data-index="${nextIdx}"]`);
             if (nextInput) nextInput.focus();
+        }
+    }
+
+    function handleAction() {
+        if (!answerChecked) {
+            checkAnswer();
+        } else {
+            goNext();
         }
     }
 
@@ -402,7 +529,7 @@ umbrella|雨傘</textarea>
         const q = gameList[currentIdx];
         const inputs = document.querySelectorAll('.letter-box');
         let userAns = '', inputIdx = 0;
-        
+
         q.en.split('').forEach(char => {
             if (char === ' ' || char === '-') userAns += char;
             else userAns += inputs[inputIdx++].value.toLowerCase();
@@ -411,7 +538,6 @@ umbrella|雨傘</textarea>
         const isCorrect = userAns === q.en;
         results.push({ q: q.en, ch: q.ch, user: userAns, status: isCorrect });
         scores.push(isCorrect ? '🏆' : '💀');
-
         updateScoreBoard();
 
         inputs.forEach(box => {
@@ -423,21 +549,20 @@ umbrella|雨傘</textarea>
 
         const resultMsg = document.getElementById('resultMessage');
         if (isCorrect) {
-            resultMsg.textContent = '🎉 正確！請點「下一題」繼續作答';
+            resultMsg.textContent = '🎉 正確！按 Enter 或點「下一題」繼續作答';
             resultMsg.className = 'result-message result-correct';
         } else {
-            resultMsg.textContent = `❌ 正確答案：${q.en.toUpperCase()}，請點「下一題」繼續作答`;
+            resultMsg.textContent = `❌ 正確答案：${q.en.toUpperCase()}，按 Enter 或點「下一題」繼續作答`;
             resultMsg.className = 'result-message result-wrong';
         }
 
-        document.getElementById('enterHint').style.display = 'none';
-        document.getElementById('nextBtn').style.display = 'inline-block';
+        document.getElementById('actionBtn').textContent = '下一題';
         answerChecked = true;
     }
 
     function updateScoreBoard() {
         const board = document.getElementById('scoreBoard');
-        board.innerHTML = scores.map((score) => 
+        board.innerHTML = scores.map(score =>
             `<span class="score-icon ${score === '🏆' ? 'trophy' : 'skull'}">${score}</span>`
         ).join('');
     }
