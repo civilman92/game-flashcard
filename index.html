@@ -102,6 +102,11 @@
         }
         .btn-speaker:hover { transform: translateY(-3px); }
 
+        .enter-hint {
+            text-align: center; margin: 15px 0; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); 
+            border-radius: 15px; font-size: 18px; font-weight: 600; color: #1976d2;
+        }
+
         .summary-table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .summary-table th, .summary-table td { padding: 20px; border-bottom: 1px solid #eee; text-align: left; }
         .summary-table th { background: linear-gradient(135deg, var(--primary), #3f51b5); color: white; font-weight: 700; }
@@ -175,6 +180,10 @@ umbrella|雨傘</textarea>
 
         <div class="letter-inputs" id="letterInputs"></div>
         
+        <div class="enter-hint" id="enterHint" style="display: none;">
+            ⌨️ 填完後按 <strong>Enter</strong> 檢查答案 → 再按一次 <strong>Enter</strong> 下一題
+        </div>
+        
         <div class="result-message" id="resultMessage"></div>
     </div>
 
@@ -195,9 +204,18 @@ umbrella|雨傘</textarea>
     let imageCache = new Map();
     let answerChecked = false;
 
-    // 🔧 修正：直接在 textarea 中填入預設內容，避免 DOM 未載入問題
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('✅ 頁面載入完成，開始遊戲可用');
+    // 🚀 全域 Enter 鍵監聽器
+    document.addEventListener('keydown', function(e) {
+        if (document.getElementById('gamePanel').classList.contains('active') && e.key === 'Enter') {
+            e.preventDefault();
+            console.log('Enter 按下，檢查狀態:', answerChecked ? '已檢查→下一題' : '未檢查→檢查答案');
+            
+            if (!answerChecked) {
+                checkAnswer();
+            } else {
+                goNext();
+            }
+        }
     });
 
     function loadWordImage(word) {
@@ -254,14 +272,10 @@ umbrella|雨傘</textarea>
         const wordInput = document.getElementById('wordInput');
         const raw = wordInput.value.trim();
         
-        console.log('📝 題庫內容長度:', raw.length);
-        
         wordBank = raw.split('\n').map(line => {
             const parts = line.split('|');
             return { en: parts[0]?.trim().toLowerCase(), ch: parts[1]?.trim() };
         }).filter(item => item.en && item.ch);
-
-        console.log('✅ 解析後題庫數量:', wordBank.length);
 
         if (wordBank.length < 20) { 
             alert("請至少輸入 20 個單字！目前只有 " + wordBank.length + " 個");
@@ -280,6 +294,7 @@ umbrella|雨傘</textarea>
         
         document.getElementById('setupPanel').classList.remove('active');
         document.getElementById('gamePanel').classList.add('active');
+        document.getElementById('enterHint').style.display = 'block';
         
         console.log('🎮 切換到遊戲面板');
         loadQuestion();
@@ -292,6 +307,7 @@ umbrella|雨傘</textarea>
         document.getElementById('chineseHint').textContent = q.ch;
         document.getElementById('resultMessage').textContent = '';
         document.getElementById('resultMessage').className = 'result-message';
+        document.getElementById('enterHint').style.display = 'block';
         
         loadWordImage(q.en);
         setTimeout(pronounceWord, 1000);
@@ -299,26 +315,28 @@ umbrella|雨傘</textarea>
         const container = document.getElementById('letterInputs');
         container.innerHTML = '';
         
+        let inputCount = 0;
         q.en.split('').forEach((char, i) => {
             if (char === ' ' || char === '-') {
                 const s = document.createElement('span');
                 s.textContent = char; 
-                s.style.width = '30px'; 
-                s.style.height = '75px'; 
-                s.style.lineHeight = '75px';
-                s.style.display = 'flex';
-                s.style.alignItems = 'center';
-                s.style.justifyContent = 'center';
+                s.style.cssText = 'width: 30px; height: 75px; line-height: 75px; display: flex; align-items: center; justify-content: center;';
                 container.appendChild(s);
             } else {
                 const input = document.createElement('input');
                 input.className = 'letter-box'; 
                 input.maxLength = 1; 
-                input.dataset.index = i;
+                input.dataset.index = inputCount++;
                 input.addEventListener('input', handleInput);
-                input.addEventListener('keydown', handleKeydown);
                 container.appendChild(input);
             }
+        });
+        
+        // 重置所有輸入框樣式
+        document.querySelectorAll('.letter-box').forEach(box => {
+            box.disabled = false;
+            box.className = 'letter-box';
+            box.value = '';
         });
         
         answerChecked = false;
@@ -333,6 +351,7 @@ umbrella|雨傘</textarea>
         let value = input.value.toLowerCase().replace(/[^a-z]/g, '');
         input.value = value ? value.toUpperCase() : '';
         
+        // 自動跳到下一個輸入框
         if (input.value) {
             const nextIdx = parseInt(input.dataset.index) + 1;
             const nextInput = document.querySelector(`.letter-box[data-index="${nextIdx}"]`);
@@ -340,32 +359,8 @@ umbrella|雨傘</textarea>
         }
     }
 
-    function handleKeydown(e) {
-        const inputs = document.querySelectorAll('.letter-box');
-        const currentIndex = parseInt(e.target.dataset.index);
-        
-        if ((e.key === 'Backspace' || e.key === 'Delete') && !e.target.value) {
-            if (currentIndex > 0) {
-                const prevInput = document.querySelector(`.letter-box[data-index="${currentIndex - 1}"]`);
-                if (prevInput) {
-                    prevInput.focus();
-                    prevInput.value = '';
-                }
-            }
-            e.preventDefault();
-        }
-        
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (!answerChecked) {
-                checkAnswer();
-            } else {
-                goNext();
-            }
-        }
-    }
-
     function checkAnswer() {
+        console.log('🔍 檢查答案');
         const q = gameList[currentIdx];
         const inputs = document.querySelectorAll('.letter-box');
         let userAns = '', inputIdx = 0;
@@ -376,33 +371,38 @@ umbrella|雨傘</textarea>
         });
 
         const isCorrect = userAns === q.en;
+        console.log('答案:', q.en, '使用者:', userAns, '結果:', isCorrect);
+        
         results.push({ q: q.en, ch: q.ch, user: userAns, status: isCorrect });
         scores.push(isCorrect ? '🏆' : '💀');
 
         updateScoreBoard();
 
+        // 著色每個字母
         inputs.forEach((box, i) => {
             box.disabled = true;
             const userChar = box.value.toLowerCase();
-            const correctChar = q.en[i];
+            const correctChar = q.en[parseInt(box.dataset.index)];
             box.classList.add(userChar === correctChar ? 'correct' : 'wrong');
         });
 
+        // 顯示結果
         const resultMsg = document.getElementById('resultMessage');
         if (isCorrect) {
-            resultMsg.textContent = '🎉 正確！按 Enter 進入下一題';
+            resultMsg.innerHTML = '🎉 <strong>正確！</strong><br>按 <kbd style="background:#4caf50;color:white;padding:4px 8px;border-radius:4px;">Enter</kbd> 進入下一題';
             resultMsg.className = 'result-message result-correct';
         } else {
-            resultMsg.textContent = `❌ 正確答案：${q.en.toUpperCase()}，按 Enter 進入下一題`;
+            resultMsg.innerHTML = `❌ <strong>正確答案：${q.en.toUpperCase()}</strong><br>按 <kbd style="background:#f44336;color:white;padding:4px 8px;border-radius:4px;">Enter</kbd> 進入下一題`;
             resultMsg.className = 'result-message result-wrong';
         }
 
+        document.getElementById('enterHint').style.display = 'none';
         answerChecked = true;
     }
 
     function updateScoreBoard() {
         const board = document.getElementById('scoreBoard');
-        board.innerHTML = scores.map((score, idx) => 
+        board.innerHTML = scores.map((score) => 
             `<span class="score-icon ${score === '🏆' ? 'trophy' : 'skull'}">${score}</span>`
         ).join('');
     }
@@ -415,6 +415,7 @@ umbrella|雨傘</textarea>
     }
 
     function goNext() {
+        console.log('➡️ 下一題');
         currentIdx++;
         if (currentIdx < 20) {
             loadQuestion();
