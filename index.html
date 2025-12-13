@@ -337,14 +337,14 @@ umbrella|雨傘</textarea>
     let imageCache = new Map();
     let answerChecked = false;
 
-    // 全域 Enter：只在「不是輸入框」時才攔截，避免阻擋輸入
+    // 全域 Enter：只在非輸入框時觸發「完成 / 下一題」
     document.addEventListener('keydown', function(e) {
         if (!document.getElementById('gamePanel').classList.contains('active')) return;
         if (e.key !== 'Enter') return;
 
         const active = document.activeElement;
         if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
-            // 讓輸入框自己處理 Enter，不在這裡攔截
+            // 交由 input 自己的 keydown 處理
             return;
         }
 
@@ -502,7 +502,7 @@ umbrella|雨傘</textarea>
 
         answerChecked = false;
 
-        // 自動發音（不影響輸入焦點）
+        // 自動發音 + 聚焦第一格
         setTimeout(() => {
             pronounceWord(false);
             const firstInput = container.querySelector('input');
@@ -524,6 +524,7 @@ umbrella|雨傘</textarea>
 
     function handleLetterKeydown(e) {
         const idx = parseInt(e.target.dataset.index);
+
         if (e.key === 'ArrowLeft') {
             const prev = document.querySelector(`.letter-box[data-index="${idx - 1}"]`);
             if (prev) prev.focus();
@@ -541,8 +542,11 @@ umbrella|雨傘</textarea>
                 }
             }
             e.preventDefault();
+        } else if (e.key === 'Enter') {
+            // 在任何字母格按 Enter，都視為完成作答或進下一題
+            e.preventDefault();
+            handleAction();
         }
-        // 不在這裡處理 Enter，避免阻擋輸入；Enter 由全域監聽處理
     }
 
     function handleAction() {
@@ -607,7 +611,6 @@ umbrella|雨傘</textarea>
         msg.volume = 0.9;
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(msg);
-        // 自動發音與按鈕發音都不改變焦點，避免影響輸入。[web:70]
     }
 
     function goNext() {
