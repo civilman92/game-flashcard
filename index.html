@@ -34,7 +34,6 @@
             padding: 20px 24px;
         }
 
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -70,7 +69,6 @@
         .panel { display: none; }
         .active { display: block; }
 
-        /* Image section - 縮小高度 + 去除底層灰色外框 */
         .image-wrapper {
             display: flex;
             flex-direction: column;
@@ -242,7 +240,6 @@
             box-shadow: 0 0 0 3px rgba(92,107,192,0.18);
         }
 
-        /* RWD 調整：在窄螢幕下再縮一點字與高度 */
         @media (max-width: 768px) {
             .container { padding: 16px; }
             .image-container { height: 220px; }
@@ -257,7 +254,7 @@
 </head>
 <body>
 <div class="container">
-    <!-- 題庫設定面板 -->
+    <!-- 題庫設定 -->
     <div id="setupPanel" class="panel active">
         <h2 style="text-align: center; margin-bottom: 10px; font-size: 24px;">📚 英文單字快閃卡遊戲</h2>
         <textarea id="wordInput">apple|蘋果
@@ -340,10 +337,13 @@ umbrella|雨傘</textarea>
     let imageCache = new Map();
     let answerChecked = false;
 
-    // Enter：在遊戲面板時，依狀態觸發「完成」或「下一題」
+    // Enter：在遊戲面板時，按 Enter 等同按「完成 / 下一題」按鈕
     document.addEventListener('keydown', function(e) {
         if (!document.getElementById('gamePanel').classList.contains('active')) return;
         if (e.key !== 'Enter') return;
+        // 不阻擋字母輸入，但這裡是全域 keydown，只在非 textarea 時進行處理
+        const active = document.activeElement;
+        if (active && (active.tagName === 'TEXTAREA')) return;
         e.preventDefault();
         handleAction();
     });
@@ -468,7 +468,6 @@ umbrella|雨傘</textarea>
         document.getElementById('actionBtn').textContent = '完成';
 
         loadWordImage(q.en);
-        setTimeout(pronounceWord, 600);
 
         const container = document.getElementById('letterInputs');
         container.innerHTML = '';
@@ -486,6 +485,7 @@ umbrella|雨傘</textarea>
                 input.maxLength = 1;
                 input.dataset.index = inputCount++;
                 input.addEventListener('input', handleInput);
+                input.addEventListener('keydown', handleLetterKeydown);
                 container.appendChild(input);
             }
         });
@@ -500,7 +500,7 @@ umbrella|雨傘</textarea>
         setTimeout(() => {
             const firstInput = container.querySelector('input');
             if (firstInput) firstInput.focus();
-        }, 300);
+        }, 200);
     }
 
     function handleInput(e) {
@@ -513,6 +513,32 @@ umbrella|雨傘</textarea>
             const nextInput = document.querySelector(`.letter-box[data-index="${nextIdx}"]`);
             if (nextInput) nextInput.focus();
         }
+    }
+
+    // 方向鍵與 Backspace 行為
+    function handleLetterKeydown(e) {
+        const idx = parseInt(e.target.dataset.index);
+        if (e.key === 'ArrowLeft') {
+            const prev = document.querySelector(`.letter-box[data-index="${idx - 1}"]`);
+            if (prev) prev.focus();
+        } else if (e.key === 'ArrowRight') {
+            const next = document.querySelector(`.letter-box[data-index="${idx + 1}"]`);
+            if (next) next.focus();
+        } else if (e.key === 'Backspace') {
+            if (e.target.value) {
+                // 已經有字 → 先刪除字，不自動跳格
+                e.target.value = '';
+            } else {
+                // 空的 → 刪除前一格的字並移動
+                const prev = document.querySelector(`.letter-box[data-index="${idx - 1}"]`);
+                if (prev) {
+                    prev.focus();
+                    prev.value = '';
+                }
+            }
+            e.preventDefault();
+        }
+        // Enter 在全域 keydown 處理，不在這裡處理，以免阻擋輸入
     }
 
     function handleAction() {
@@ -569,11 +595,15 @@ umbrella|雨傘</textarea>
 
     function pronounceWord() {
         const q = gameList[currentIdx];
+        if (!q) return;
+        // 語音本身不會鎖住輸入，只建立新的 Utterance 播放
         const msg = new SpeechSynthesisUtterance(q.en);
         msg.lang = 'en-US';
         msg.rate = 0.8;
         msg.volume = 0.9;
-        speechSynthesis.speak(msg);
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(msg);
+        // 播放後不改變 focus，保持在目前輸入格
     }
 
     function goNext() {
