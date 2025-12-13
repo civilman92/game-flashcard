@@ -303,7 +303,7 @@ umbrella|雨傘</textarea>
         <div class="chinese-hint" id="chineseHint">載入中...</div>
         
         <div style="text-align: center; margin-bottom: 4px;">
-            <button class="btn btn-speaker" onclick="pronounceWord()">🔊 聽發音</button>
+            <button class="btn btn-speaker" onclick="pronounceWord()">🔊 再聽一次</button>
         </div>
 
         <div class="letter-inputs" id="letterInputs"></div>
@@ -337,13 +337,17 @@ umbrella|雨傘</textarea>
     let imageCache = new Map();
     let answerChecked = false;
 
-    // Enter：在遊戲面板時，按 Enter 等同按「完成 / 下一題」按鈕
+    // 全域 Enter：只在「不是輸入框」時才攔截，避免阻擋輸入
     document.addEventListener('keydown', function(e) {
         if (!document.getElementById('gamePanel').classList.contains('active')) return;
         if (e.key !== 'Enter') return;
-        // 不阻擋字母輸入，但這裡是全域 keydown，只在非 textarea 時進行處理
+
         const active = document.activeElement;
-        if (active && (active.tagName === 'TEXTAREA')) return;
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
+            // 讓輸入框自己處理 Enter，不在這裡攔截
+            return;
+        }
+
         e.preventDefault();
         handleAction();
     });
@@ -497,10 +501,13 @@ umbrella|雨傘</textarea>
         });
 
         answerChecked = false;
+
+        // 自動發音（不影響輸入焦點）
         setTimeout(() => {
+            pronounceWord(false);
             const firstInput = container.querySelector('input');
             if (firstInput) firstInput.focus();
-        }, 200);
+        }, 400);
     }
 
     function handleInput(e) {
@@ -515,7 +522,6 @@ umbrella|雨傘</textarea>
         }
     }
 
-    // 方向鍵與 Backspace 行為
     function handleLetterKeydown(e) {
         const idx = parseInt(e.target.dataset.index);
         if (e.key === 'ArrowLeft') {
@@ -526,10 +532,8 @@ umbrella|雨傘</textarea>
             if (next) next.focus();
         } else if (e.key === 'Backspace') {
             if (e.target.value) {
-                // 已經有字 → 先刪除字，不自動跳格
                 e.target.value = '';
             } else {
-                // 空的 → 刪除前一格的字並移動
                 const prev = document.querySelector(`.letter-box[data-index="${idx - 1}"]`);
                 if (prev) {
                     prev.focus();
@@ -538,7 +542,7 @@ umbrella|雨傘</textarea>
             }
             e.preventDefault();
         }
-        // Enter 在全域 keydown 處理，不在這裡處理，以免阻擋輸入
+        // 不在這裡處理 Enter，避免阻擋輸入；Enter 由全域監聽處理
     }
 
     function handleAction() {
@@ -593,17 +597,17 @@ umbrella|雨傘</textarea>
         ).join('');
     }
 
-    function pronounceWord() {
+    function pronounceWord(fromButton = true) {
         const q = gameList[currentIdx];
         if (!q) return;
-        // 語音本身不會鎖住輸入，只建立新的 Utterance 播放
+
         const msg = new SpeechSynthesisUtterance(q.en);
         msg.lang = 'en-US';
         msg.rate = 0.8;
         msg.volume = 0.9;
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(msg);
-        // 播放後不改變 focus，保持在目前輸入格
+        // 自動發音與按鈕發音都不改變焦點，避免影響輸入。[web:70]
     }
 
     function goNext() {
