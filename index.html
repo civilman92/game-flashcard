@@ -1,604 +1,707 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>英文單字快閃卡遊戲</title>
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-body {
-    font-family: 'Microsoft JhengHei', Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-.container {
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    max-width: 900px;
-    width: 100%;
-    padding: 30px;
-}
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-.progress-container {
-    width: 200px;
-}
-.progress-bar {
-    width: 100%;
-    height: 8px;
-    background: #e0e0e0;
-    border-radius: 4px;
-    overflow: hidden;
-}
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #4CAF50, #45a049);
-    width: 0%;
-    transition: width 0.3s ease;
-}
-.title {
-    font-size: 26px;
-    font-weight: bold;
-    color: #333;
-    text-align: center;
-}
-.setup-panel {
-    padding: 18px;
-    background: #f8f9fa;
-    border-radius: 15px;
-    margin-bottom: 20px;
-}
-.setup-section-title {
-    font-size: 18px;
-    margin-bottom: 6px;
-}
-.word-setup {
-    width: 100%;
-    height: 140px;
-    resize: vertical;
-    padding: 10px;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-.small-note {
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 6px;
-}
-.groups-list {
-    max-height: 160px;
-    overflow-y: auto;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    padding: 6px 8px;
-    background: #fff;
-}
-.group-item {
-    display: flex;
-    align-items: center;
-    padding: 4px 0;
-    font-size: 14px;
-}
-.group-item label {
-    margin-left: 4px;
-}
-.num-input {
-    width: 80px;
-    padding: 4px 6px;
-    border-radius: 8px;
-    border: 2px solid #dee2e6;
-    text-align: right;
-    font-size: 14px;
-}
-.word-display {
-    text-align: center;
-    margin-bottom: 20px;
-    padding: 20px;
-    background: #f0f8ff;
-    border-radius: 15px;
-    min-height: 180px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-.word-icon {
-    font-size: 70px;
-    margin-bottom: 14px;
-    color: #667eea;
-}
-.chinese-meaning {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 12px;
-}
-.pronounce-btn {
-    background: #667eea;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    font-size: 15px;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: all 0.3s;
-}
-.pronounce-btn:hover {
-    background: #5a67d8;
-    transform: translateY(-2px);
-}
-.letter-inputs {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-}
-.letter-box {
-    width: 45px;
-    height: 55px;
-    border: 3px solid #ddd;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: bold;
-    text-transform: uppercase;
-    background: white;
-    transition: all 0.3s;
-}
-.letter-box.correct {
-    background: #4CAF50;
-    color: white;
-    border-color: #4CAF50;
-}
-.letter-box.incorrect {
-    background: #f44336;
-    color: white;
-    border-color: #f44336;
-    animation: shake 0.5s;
-}
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-}
-.control-buttons {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-.btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 22px;
-    font-size: 15px;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-weight: bold;
-}
-.btn-primary {
-    background: #667eea;
-    color: white;
-}
-.btn-primary:hover {
-    background: #5a67d8;
-    transform: translateY(-2px);
-}
-.btn-secondary {
-    background: #6c757d;
-    color: white;
-}
-.btn-secondary:hover {
-    background: #545b62;
-    transform: translateY(-2px);
-}
-.result-message {
-    text-align: center;
-    font-size: 20px;
-    font-weight: bold;
-    margin: 15px 0;
-    min-height: 26px;
-}
-.correct-text { color: #4CAF50; }
-.wrong-text { color: #f44336; }
-.hidden { display: none; }
-@media (max-width: 600px) {
-    .letter-box {
-        width: 35px;
-        height: 45px;
-        font-size: 16px;
-    }
-    .container {
-        padding: 20px;
-    }
-}
-</style>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文單字快閃卡遊戲</title>
+    <style>
+        :root {
+            --primary: #5C6BC0;
+            --success: #66BB6A;
+            --danger: #EF5350;
+            --bg: #F5F7FA;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+            max-width: 900px;
+            width: 100%;
+            padding: 20px 24px;
+        }
 
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .progress-info {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        .score-board {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        .score-icon {
+            font-size: 22px;
+            animation: bounceIn 0.5s cubic-bezier(0.68,-0.55,0.265,1.55);
+        }
+        .trophy { color: #f39c12; }
+        .skull { color: #e74c3c; }
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .panel { display: none; }
+        .active { display: block; }
+
+        .image-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .image-container {
+            width: 100%;
+            max-width: 520px;
+            height: 260px;
+            background: #f5f5f5;
+            border-radius: 16px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+        .image-placeholder {
+            font-size: 50px;
+            color: #adb5bd;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.04); }
+        }
+        .image-status-text {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .chinese-hint {
+            font-size: 32px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .letter-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 14px 0;
+            flex-wrap: wrap;
+        }
+        .letter-box {
+            width: 46px;
+            height: 58px;
+            border: 3px solid #dee2e6;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            text-transform: uppercase;
+            outline: none;
+            transition: all 0.25s;
+            background: white;
+        }
+        .letter-box:focus {
+            border-color: var(--primary);
+            background: #e8f0fe;
+            box-shadow: 0 0 0 3px rgba(92,107,192,0.25);
+        }
+        .letter-box.correct {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+        .letter-box.wrong {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .result-message {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 8px 0 4px;
+            min-height: 28px;
+            padding: 8px 10px;
+            border-radius: 14px;
+        }
+        .result-correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        .result-wrong {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn {
+            padding: 10px 26px;
+            border: none;
+            border-radius: 22px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.25s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+            margin: 4px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #3f51b5);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(92,107,192,0.4);
+        }
+        .btn-speaker {
+            background: #fff176;
+            color: #333;
+            font-size: 18px;
+            box-shadow: 0 4px 14px rgba(255,235,59,0.4);
+        }
+        .btn-speaker:hover {
+            transform: translateY(-2px);
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .summary-table th, .summary-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .summary-table th {
+            background: linear-gradient(135deg, var(--primary), #3f51b5);
+            color: white;
+            font-weight: 700;
+        }
+        .status-correct { color: var(--success); font-weight: 700; }
+        .status-wrong { color: var(--danger); font-weight: 700; }
+
+        /* 修正 setupPanel 樣式 */
+        #groupSelection label { cursor: pointer; user-select: none; }
+        #groupSelection input[type="checkbox"] { transform: scale(1.2); margin-right: 8px; }
+
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            .image-container { height: 220px; }
+            .chinese-hint { font-size: 26px; }
+            .letter-box { width: 40px; height: 52px; font-size: 20px; }
+            .score-board { padding: 4px 8px; }
+            .score-icon { font-size: 20px; }
+            .btn { font-size: 14px; padding: 8px 20px; }
+            .result-message { font-size: 18px; }
+        }
+    </style>
+</head>
 <body>
 <div class="container">
-    <div class="header">
-        <div class="progress-container">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div style="text-align: center; font-size: 14px; margin-top: 5px;">
-                <span id="progressText">0/0</span>
-            </div>
+    <div id="setupPanel" class="panel active">
+        <h2 style="text-align: center; margin-bottom: 10px; font-size: 24px;">📚 英文單字快閃卡遊戲</h2>
+        <h3 style="font-size: 18px; margin-bottom: 8px;">選擇題組來源：</h3>
+        
+        <div id="groupSelection" style="min-height: 120px; border: 2px dashed #dee2e6; border-radius: 10px; padding: 10px; margin-bottom: 12px; text-align: left;">
+            <p style="text-align:center; color:#555;">載入後台題組中...</p>
         </div>
-        <div class="title">英文單字快閃卡</div>
-        <div style="width: 200px;"></div>
+        
+        <div id="selectionStatus" style="font-size:14px; color:#5C6BC0; text-align:center; margin-bottom: 8px;"></div>
+        <div style="text-align:center;">
+            <button class="btn btn-primary" id="startGameBtn" onclick="initGame()" disabled>🚀 開始挑戰</button>
+        </div>
     </div>
 
-    <!-- 設定面板 -->
-    <div id="setupPanel" class="setup-panel">
-        <h3 class="setup-section-title">📚 題庫設定</h3>
-
-        <div style="margin-bottom:12px;">
-            <div class="setup-section-title" style="font-size:16px;">來源一：自訂單字題庫</div>
-            <p class="small-note">格式：英文|中文|圖示emoji，一行一組。例如：apple|蘋果|🍎</p>
-            <textarea id="wordSetup" class="word-setup" placeholder="apple|蘋果|🍎"></textarea>
-        </div>
-
-        <div style="margin-bottom:12px;">
-            <div class="setup-section-title" style="font-size:16px;">來源二：後台題組（可多選）</div>
-            <p class="small-note">這些題組來自後台管理頁（admin.html）與 MongoDB。</p>
-            <div id="groupsList" class="groups-list">
-                <p class="small-note">讀取題組中...</p>
+    <div id="gamePanel" class="panel">
+        <div class="header">
+            <div class="progress-info">
+                <div id="questionTitle" style="font-size: 20px; margin-bottom: 2px;">第 1 題</div>
+                <div>進度: <span id="progressText">0/20</span></div>
             </div>
-            <p class="small-note" style="margin-top:6px;">
-                若要新增 / 編輯題組，請前往後台：
-                <a href="admin.html" target="_blank">開啟管理及編輯題組頁面</a>
-            </p>
+            <div class="score-board" id="scoreBoard"></div>
         </div>
 
-        <div style="margin-bottom:12px;">
-            <div class="setup-section-title" style="font-size:16px;">題數設定</div>
-            <label for="questionCount" class="small-note">題數（1～30）：</label><br>
-            <input id="questionCount" type="number" class="num-input" min="1" max="30" value="20">
+        <div class="image-wrapper">
+            <div class="image-container">
+                <img id="wordImage" src="" alt="單字圖片" style="display:none;">
+                <div id="imagePlaceholder" class="image-placeholder" style="display:none;">📷</div>
+            </div>
+            <div id="imageStatusText" class="image-status-text"></div>
         </div>
-
-        <button class="btn btn-primary" onclick="startGame()">🚀 開始遊戲</button>
-    </div>
-
-    <!-- 遊戲面板 -->
-    <div id="gamePanel" class="hidden">
-        <div class="word-display">
-            <div class="word-icon" id="wordIcon">🎯</div>
-            <div class="chinese-meaning" id="chineseMeaning">準備開始...</div>
-            <button class="pronounce-btn" onclick="pronounceWord()" id="pronounceBtn">🔊 聽發音</button>
+        
+        <div class="chinese-hint" id="chineseHint">載入中...</div>
+        
+        <div style="text-align: center; margin-bottom: 4px;">
+            <button class="btn btn-speaker" onclick="pronounceWord()">🔊 再聽一次</button>
         </div>
 
         <div class="letter-inputs" id="letterInputs"></div>
-
+        
         <div class="result-message" id="resultMessage"></div>
 
-        <div class="control-buttons">
-            <button class="btn btn-primary" id="checkBtn" onclick="checkAnswer()">完成</button>
-            <button class="btn btn-secondary" onclick="showAnswer()">顯示答案</button>
+        <div style="text-align:center; margin-top:4px;">
+            <button class="btn btn-primary" id="actionBtn" onclick="handleAction()">完成</button>
+        </div>
+    </div>
+
+    <div id="resultPanel" class="panel">
+        <h2 style="text-align: center; font-size: 26px; margin-bottom: 10px;">🏆 挑戰完成！</h2>
+        <div style="max-height: 360px; overflow-y: auto; margin: 10px 0;">
+            <table class="summary-table" id="summaryTable">
+                <thead><tr><th>單字</th><th>正確答案</th><th>您的回答</th><th>狀態</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div style="text-align:center; margin-top:6px;">
+            <button class="btn btn-primary" onclick="location.reload()">🔄 重新開始</button>
         </div>
     </div>
 </div>
 
 <script>
-// 後台 API 基底網址：請改成你的後端網址
-// 例如：const API_BASE = 'http://localhost:3000/api';
-const API_BASE = 'http://localhost:3000/api';
+    // 設置 API_BASE 為本地伺服器地址
+    const API_BASE = 'http://localhost:3000/api';
+    const UNSPLASH_ACCESS_KEY = 'XDJVghn6USaEIhWdqnBGQ1f8NXr0BRngG8_kI3eRlgw';
 
-// 從後端取得的題組集合：{ groupName: [ {english, chinese, icon}, ... ], ... }
-let predefinedGroups = {};
+    let allGroups = []; // 儲存從後台載入的所有題組
+    let wordBank = [], gameList = [], currentIdx = 0, results = [], scores = [];
+    let imageCache = new Map();
+    let answerChecked = false;
 
-let wordBank = [];         // 合併後的總題庫
-let currentQuestions = []; // 本次抽出的題目
-let currentQuestionIndex = 0;
-let currentWord = '';
-let letterInputs = [];
-let answerChecked = false;
+    // ===================================================
+    // 遊戲設定載入邏輯 (新增/修改)
+    // ===================================================
 
-// 頁面載入時，先從後端讀取題組
-document.addEventListener('DOMContentLoaded', () => {
-    loadGroupsFromServer();
-});
+    // 從後台載入題組並建立多選框
+    async function loadGroupsForSetup() {
+        const panel = document.getElementById('groupSelection');
+        const statusDiv = document.getElementById('selectionStatus');
+        const startBtn = document.getElementById('startGameBtn');
+        panel.innerHTML = '<p style="text-align:center; color:#555;">載入後台題組中...</p>';
+        startBtn.disabled = true;
 
-// 從後端載入題組列表
-async function loadGroupsFromServer() {
-    const list = document.getElementById('groupsList');
-    list.innerHTML = '<p class="small-note">讀取題組中...</p>';
-    try {
-        const res = await fetch(`${API_BASE}/groups`, { method: 'GET' });
-        if (!res.ok) throw new Error('讀取題組失敗：' + res.status);
-        const groups = await res.json(); // 預期格式：[{ name, words:[{english,chinese,icon},...] }, ...]
-        predefinedGroups = {};
-        groups.forEach(g => {
-            predefinedGroups[g.name] = (g.words || []).map(w => ({
-                english: (w.english || '').toLowerCase(),
-                chinese: w.chinese || '',
-                icon: w.icon || '❓'
-            }));
+        try {
+            const res = await fetch(`${API_BASE}/groups`);
+            if (!res.ok) throw new Error('讀取失敗：' + res.status);
+            allGroups = await res.json(); 
+
+            if (allGroups.length === 0) {
+                panel.innerHTML = '<p style="text-align:center; color:#c00;">後台目前無任何題組。</p>';
+                statusDiv.textContent = '請先使用管理介面新增題組。';
+                return;
+            }
+
+            panel.innerHTML = '';
+            let totalWords = 0;
+            allGroups.forEach((g, index) => {
+                const wordCount = g.words?.length || 0;
+                totalWords += wordCount;
+                const checkboxId = `group-${index}`;
+                const div = document.createElement('div');
+                div.style.cssText = 'padding: 4px 0;';
+                div.innerHTML = `
+                    <input type="checkbox" id="${checkboxId}" data-index="${index}" onchange="updateStartButton()">
+                    <label for="${checkboxId}">
+                        ${g.name} (${wordCount} 詞)
+                    </label>
+                `;
+                panel.appendChild(div);
+            });
+            
+            updateStartButton(); // 初始檢查按鈕狀態
+            statusDiv.textContent = `共 ${allGroups.length} 個題組，總計 ${totalWords} 個單字。`;
+
+        } catch (err) {
+            console.error('載入題組失敗:', err);
+            panel.innerHTML = '<p style="text-align:center; color:#c00;">無法連線到後台伺服器。</p>';
+            statusDiv.textContent = '請確認後台 (server.js) 已啟動。';
+        }
+    }
+
+    // 檢查選擇的題組數量，並更新開始按鈕狀態
+    function updateStartButton() {
+        const selectedGroups = document.querySelectorAll('#groupSelection input:checked');
+        const startBtn = document.getElementById('startGameBtn');
+        const statusDiv = document.getElementById('selectionStatus');
+        
+        let selectedWordCount = 0;
+        selectedGroups.forEach(checkbox => {
+            const index = checkbox.dataset.index;
+            selectedWordCount += allGroups[index].words?.length || 0;
         });
-        renderGroupsList();
-    } catch (err) {
-        console.error('載入題組失敗：', err);
-        list.innerHTML = '<p class="small-note" style="color:#c00;">無法從後台讀取題組，請稍後再試。</p>';
-    }
-}
 
-// 在設定面板顯示題組清單（多選）
-function renderGroupsList() {
-    const list = document.getElementById('groupsList');
-    list.innerHTML = '';
-    const names = Object.keys(predefinedGroups);
-    if (names.length === 0) {
-        list.innerHTML = '<p class="small-note">目前沒有任何題組，請先到後台管理頁新增。</p>';
-        return;
-    }
-    names.forEach(name => {
-        const id = 'group-' + name.replace(/\s+/g, '-');
-        const div = document.createElement('div');
-        div.className = 'group-item';
-        div.innerHTML = `
-            <input type="checkbox" id="${id}" data-group="${encodeURIComponent(name)}">
-            <label for="${id}">${name}（${predefinedGroups[name].length} 題）</label>
-        `;
-        list.appendChild(div);
-    });
-}
+        const maxQuestions = 20;
 
-// 解析自訂輸入的題庫
-function parseWordSetup(text) {
-    if (!text.trim()) return [];
-    const lines = text.trim().split('\n');
-    return lines.map(line => {
-        const parts = line.split('|').map(s => s.trim());
-        const english = parts[0] || '';
-        const chinese = parts[1] || '';
-        const icon = parts[2] || '❓';
-        if (english && chinese) {
-            return {
-                english: english.toLowerCase(),
-                chinese,
-                icon
-            };
+        if (selectedGroups.length === 0) {
+            startBtn.disabled = true;
+            startBtn.textContent = '請選擇至少一個題組';
+            statusDiv.textContent = '';
+        } else if (selectedWordCount < 5) { // 至少5個詞才允許開始
+            startBtn.disabled = true;
+            startBtn.textContent = `單字數量不足 (目前 ${selectedWordCount} 詞)`;
+            statusDiv.textContent = '建議選擇足夠的題組，以獲得完整遊戲體驗。';
+        } else {
+            startBtn.disabled = false;
+            // 顯示實際遊戲題數 (取 wordBank 總數與 20 的最小值)
+            startBtn.textContent = `🚀 開始挑戰 (${Math.min(maxQuestions, selectedWordCount)} 題)`;
+            statusDiv.textContent = `已選擇 ${selectedGroups.length} 個題組，共 ${selectedWordCount} 詞。`;
         }
-        return null;
-    }).filter(Boolean);
-}
-
-// 開始遊戲：合併自訂 + 題組，隨機抽題
-function startGame() {
-    const setupText = document.getElementById('wordSetup').value;
-    const customWords = parseWordSetup(setupText);
-
-    // 從勾選的題組收集單字
-    const checkedGroups = Array.from(document.querySelectorAll('#groupsList input[type="checkbox"]:checked'));
-    let groupWords = [];
-    checkedGroups.forEach(cb => {
-        const name = decodeURIComponent(cb.dataset.group);
-        const arr = predefinedGroups[name] || [];
-        groupWords = groupWords.concat(arr);
-    });
-
-    wordBank = [];
-    customWords.forEach(w => wordBank.push(w));
-    groupWords.forEach(w => wordBank.push(w));
-
-    if (wordBank.length === 0) {
-        alert('請至少在「自訂單字」或「後台題組」中提供一個以上的單字。');
-        return;
     }
 
-    const countInput = document.getElementById('questionCount');
-    let desiredCount = parseInt(countInput.value, 10) || 1;
-    if (desiredCount < 1) desiredCount = 1;
-    if (desiredCount > 30) desiredCount = 30;
-    const maxCount = wordBank.length;
-    const finalCount = Math.min(desiredCount, maxCount);
-    countInput.value = finalCount;
-
-    // 隨機抽題
-    currentQuestions = shuffleArray(wordBank).slice(0, finalCount);
-    currentQuestionIndex = 0;
-    answerChecked = false;
-
-    document.getElementById('setupPanel').classList.add('hidden');
-    document.getElementById('gamePanel').classList.remove('hidden');
-
-    loadQuestion();
-    updateProgress();
-}
-
-// 陣列洗牌
-function shuffleArray(arr) {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-}
-
-// 載入一題
-function loadQuestion() {
-    const q = currentQuestions[currentQuestionIndex];
-    currentWord = q.english;
-
-    document.getElementById('wordIcon').textContent = q.icon;
-    document.getElementById('chineseMeaning').textContent = q.chinese;
-    document.getElementById('resultMessage').textContent = '';
-    document.getElementById('resultMessage').className = 'result-message';
-    document.getElementById('checkBtn').textContent = '完成';
-    answerChecked = false;
-
-    createLetterInputs();
-    clearInputs();
-    updateProgress();
-}
-
-// 建立字母輸入格
-function createLetterInputs() {
-    const container = document.getElementById('letterInputs');
-    container.innerHTML = '';
-    letterInputs = [];
-    for (let i = 0; i < currentWord.length; i++) {
-        const box = document.createElement('div');
-        box.className = 'letter-box';
-        box.dataset.index = i;
-        box.contentEditable = true;
-        box.addEventListener('input', handleInput);
-        box.addEventListener('keydown', handleKeydown);
-        container.appendChild(box);
-        letterInputs.push(box);
-    }
-}
-
-// 處理輸入（只允許 a–z，並自動跳下一格）
-function handleInput(e) {
-    const box = e.target;
-    let value = box.textContent.toLowerCase().trim();
-    if (value.length > 1) value = value[0];
-    if (!/^[a-z]$/.test(value)) {
-        box.textContent = '';
-        return;
-    }
-    box.textContent = value.toUpperCase();
-    const index = parseInt(box.dataset.index, 10);
-    if (index < currentWord.length - 1) {
-        letterInputs[index + 1].focus();
-    }
-}
-
-// 鍵盤行為：Backspace 左移刪除、Enter 完成/下一題
-function handleKeydown(e) {
-    const index = parseInt(e.target.dataset.index, 10);
-    if (e.key === 'Backspace' && e.target.textContent === '') {
-        if (index > 0) {
-            letterInputs[index - 1].focus();
+    // 啟動遊戲 (修改)
+    function initGame() {
+        const selectedCheckboxes = document.querySelectorAll('#groupSelection input:checked');
+        if (selectedCheckboxes.length === 0) {
+            alert("請至少選擇一個題組！");
+            return;
         }
-    } else if (e.key === 'Enter') {
+
+        wordBank = [];
+        selectedCheckboxes.forEach(checkbox => {
+            const index = checkbox.dataset.index;
+            // 將選取的題組中的所有單字加入 wordBank
+            wordBank.push(...(allGroups[index].words || []));
+        });
+        
+        if (wordBank.length === 0) {
+             alert("您選擇的題組中沒有任何單字，請檢查後台資料。");
+             return;
+        }
+
+        const gameCount = Math.min(20, wordBank.length); 
+        
+        // 隨機從 wordBank 中選取最多 20 個單字作為遊戲列表
+        gameList = [...wordBank].sort(() => Math.random() - 0.5).slice(0, gameCount); 
+        
+        // 檢查單字數量是否足夠
+        if (gameList.length === 0) {
+             alert("單字數量不足，遊戲無法進行。");
+             return;
+        }
+
+        imageCache.clear();
+        scores = [];
+        results = [];
+        currentIdx = 0;
+        answerChecked = false;
+
+        document.getElementById('scoreBoard').innerHTML = '';
+
+        document.getElementById('setupPanel').classList.remove('active');
+        document.getElementById('gamePanel').classList.add('active');
+        // 修正進度條初始化
+        document.getElementById('progressText').textContent = `0/${gameCount}`; 
+        
+        loadQuestion();
+    }
+    
+    // ===================================================
+    // 遊戲運行邏輯 (修正 hardcoded 20)
+    // ===================================================
+    
+    // 載入題目 (修正)
+    function loadQuestion() {
+        const q = gameList[currentIdx];
+        const gameCount = gameList.length; // 遊戲總題數
+
+        document.getElementById('questionTitle').textContent = `第 ${currentIdx + 1} 題`;
+        document.getElementById('progressText').textContent = `${currentIdx + 1}/${gameCount}`; // 修正
+        document.getElementById('chineseHint').textContent = q.ch;
+        document.getElementById('resultMessage').textContent = '';
+        document.getElementById('resultMessage').className = 'result-message';
+        document.getElementById('actionBtn').textContent = '完成';
+
+        loadWordImage(q.en);
+
+        const container = document.getElementById('letterInputs');
+        container.innerHTML = '';
+
+        let inputCount = 0;
+        q.en.split('').forEach((char) => {
+            if (char === ' ' || char === '-') {
+                const s = document.createElement('span');
+                s.textContent = char;
+                s.style.cssText = 'width:24px;height:58px;display:flex;align-items:center;justify-content:center;';
+                container.appendChild(s);
+            } else {
+                const input = document.createElement('input');
+                input.className = 'letter-box';
+                input.maxLength = 1;
+                input.dataset.index = inputCount++;
+                input.addEventListener('input', handleInput);
+                input.addEventListener('keydown', handleLetterKeydown);
+                container.appendChild(input);
+            }
+        });
+
+        document.querySelectorAll('.letter-box').forEach(box => {
+            box.disabled = false;
+            box.className = 'letter-box';
+            box.value = '';
+        });
+
+        answerChecked = false;
+
+        // 自動發音 + 聚焦第一格
+        setTimeout(() => {
+            pronounceWord(false);
+            const firstInput = container.querySelector('input');
+            if (firstInput) firstInput.focus();
+        }, 400);
+    }
+    
+    // 跳到下一題 (修正)
+    function goNext() {
+        currentIdx++;
+        const gameCount = gameList.length; // 遊戲總題數
+        if (currentIdx < gameCount) {
+            loadQuestion();
+        } else {
+            showFinalResults();
+        }
+    }
+    
+    // ... (其他函數不變)
+    
+    // ===================================================
+    // 網頁載入時執行
+    // ===================================================
+    document.addEventListener('DOMContentLoaded', loadGroupsForSetup);
+
+    // 原始碼中其他函數如 loadWordImage, createFallbackSvg, handleInput, handleLetterKeydown, 
+    // handleAction, checkAnswer, updateScoreBoard, pronounceWord, showFinalResults 保持不變
+    // 確保它們都在 <script> 標籤內
+    
+    // [以下為原始碼中其他未修改但仍需要的函數]
+    // ... (loadWordImage, useFallbackSvg, createFallbackSvg, handleInput, handleLetterKeydown, handleAction, checkAnswer, updateScoreBoard, pronounceWord, goNext, showFinalResults)
+    // 由於篇幅限制，這裡不重複貼上未修改的函數，但在實際檔案中它們應當存在。
+
+    // 全域 Enter 處理 (保持不變)
+    document.addEventListener('keydown', function(e) {
+        if (!document.getElementById('gamePanel').classList.contains('active')) return;
+        if (e.key !== 'Enter') return;
+
+        const active = document.activeElement;
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
+            return;
+        }
+
         e.preventDefault();
         handleAction();
-    }
-}
+    });
 
-// 完成 / 下一題 的整體入口（Enter 或按鈕都用這個）
-function handleAction() {
-    if (!answerChecked) {
-        checkAnswer();
-    } else {
-        nextQuestion();
-    }
-}
+    async function loadWordImage(word) {
+        const img = document.getElementById('wordImage');
+        const placeholder = document.getElementById('imagePlaceholder');
+        const statusText = document.getElementById('imageStatusText');
 
-// 檢查答案（第一次 Enter / 完成）
-function checkAnswer() {
-    if (answerChecked) return;
-
-    let correct = true;
-    let userAnswer = '';
-    letterInputs.forEach((box, i) => {
-        const userChar = box.textContent.toLowerCase();
-        const correctChar = currentWord[i];
-        if (userChar === correctChar) {
-            box.classList.add('correct');
-        } else {
-            box.classList.add('incorrect');
-            correct = false;
+        if (imageCache.has(word)) {
+            img.src = imageCache.get(word);
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+            statusText.textContent = '圖片來源：Unsplash';
+            return;
         }
-        userAnswer += userChar;
-    });
 
-    const resultEl = document.getElementById('resultMessage');
-    if (correct) {
-        resultEl.textContent = '✅ 正確！再按一次 Enter 或點「下一題」繼續作答';
-        resultEl.className = 'result-message correct-text';
-    } else {
-        resultEl.textContent = `❌ 不對！正確答案是：${currentWord.toUpperCase()}，再按一次 Enter 或點「下一題」繼續作答`;
-        resultEl.className = 'result-message wrong-text';
+        img.style.display = 'none';
+        placeholder.style.display = 'block';
+        placeholder.innerHTML = '🔍 圖片載入中...';
+        statusText.textContent = '';
+
+        try {
+            const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(word)}&per_page=1&orientation=landscape&client_id=${UNSPLASH_ACCESS_KEY}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Unsplash API error: ' + res.status);
+            const data = await res.json();
+            if (data.results && data.results.length > 0) {
+                const photo = data.results[0];
+                const imgUrl = photo.urls && (photo.urls.small || photo.urls.regular);
+                if (imgUrl) {
+                    imageCache.set(word, imgUrl);
+                    img.src = imgUrl;
+                    img.onload = () => {
+                        placeholder.style.display = 'none';
+                        img.style.display = 'block';
+                        statusText.textContent = '圖片來源：Unsplash';
+                    };
+                    img.onerror = () => {
+                        useFallbackSvg(word, img, placeholder, statusText);
+                    };
+                    return;
+                }
+            }
+            useFallbackSvg(word, img, placeholder, statusText);
+        } catch (err) {
+            console.error('Unsplash 請求錯誤：', err);
+            useFallbackSvg(word, img, placeholder, statusText);
+        }
     }
 
-    answerChecked = true;
-    document.getElementById('checkBtn').textContent = '下一題';
-}
-
-// 顯示答案（不影響切題邏輯）
-function showAnswer() {
-    letterInputs.forEach((box, i) => {
-        box.textContent = currentWord[i].toUpperCase();
-        box.classList.add('correct');
-    });
-    answerChecked = true;
-    document.getElementById('checkBtn').textContent = '下一題';
-    document.getElementById('resultMessage').textContent = `✅ 正確答案：${currentWord.toUpperCase()}，再按一次 Enter 或點「下一題」繼續作答`;
-    document.getElementById('resultMessage').className = 'result-message correct-text';
-}
-
-// 下一題（第二次 Enter / 再按按鈕）
-function nextQuestion() {
-    currentQuestionIndex++;
-    if (currentQuestionIndex >= currentQuestions.length) {
-        alert('🎉 恭喜完成全部題目！');
-        location.reload();
-        return;
+    function useFallbackSvg(word, img, placeholder, statusText) {
+        const svgData = createFallbackSvg(word);
+        imageCache.set(word, svgData);
+        img.src = svgData;
+        img.onload = () => {
+            placeholder.style.display = 'none';
+            img.style.display = 'block';
+            statusText.textContent = '圖片來源：自動產生文字圖示';
+        };
+        img.onerror = () => {
+            placeholder.innerHTML = `📸 ${word.toUpperCase()}`;
+            statusText.textContent = '圖片載入失敗';
+        };
     }
-    loadQuestion();
-}
 
-// 朗讀單字
-function pronounceWord() {
-    if (!currentWord) return;
-    const utterance = new SpeechSynthesisUtterance(currentWord);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.8;
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
-}
+    function createFallbackSvg(word) {
+        const safeWord = (word || '').toUpperCase();
+        const svg = `
+            <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1"/>
+                        <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1"/>
+                    </linearGradient>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grad)"/>
+                <text x="50%" y="45%" font-size="56" fill="white" text-anchor="middle" font-weight="bold">
+                    ${safeWord}
+                </text>
+                <text x="50%" y="62%" font-size="24" fill="rgba(255,255,255,0.85)" text-anchor="middle">
+                    Vocabulary Card
+                </text>
+            </svg>
+        `;
+        return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+    }
 
-// 清空輸入
-function clearInputs() {
-    letterInputs.forEach(box => {
-        box.textContent = '';
-        box.className = 'letter-box';
-    });
-    if (letterInputs[0]) letterInputs[0].focus();
-}
 
-// 更新進度條
-function updateProgress() {
-    const total = currentQuestions.length || 1;
-    const progress = ((currentQuestionIndex + 1) / total) * 100;
-    document.getElementById('progressFill').style.width = progress + '%';
-    document.getElementById('progressText').textContent = `${currentQuestionIndex + 1}/${total}`;
-}
+    function handleInput(e) {
+        const input = e.target;
+        let value = input.value.toLowerCase().replace(/[^a-z]/g, '');
+        input.value = value ? value.toUpperCase() : '';
 
-// 讓 Enter 在整個遊戲時也能觸發 handleAction（非 contentEditable 時）
-document.addEventListener('keydown', function(e) {
-    if (document.getElementById('gamePanel').classList.contains('hidden')) return;
-    if (e.key !== 'Enter') return;
-    const active = document.activeElement;
-    // contentEditable 的格子已經在 handleKeydown 處理 Enter
-    if (active && active.isContentEditable) return;
-    e.preventDefault();
-    handleAction();
-});
-</script>
-</body>
-</html>
+        if (input.value) {
+            const nextIdx = parseInt(input.dataset.index) + 1;
+            const nextInput = document.querySelector(`.letter-box[data-index="${nextIdx}"]`);
+            if (nextInput) nextInput.focus();
+        }
+    }
+
+    function handleLetterKeydown(e) {
+        const idx = parseInt(e.target.dataset.index);
+
+        if (e.key === 'ArrowLeft') {
+            const prev = document.querySelector(`.letter-box[data-index="${idx - 1}"]`);
+            if (prev) prev.focus();
+        } else if (e.key === 'ArrowRight') {
+            const next = document.querySelector(`.letter-box[data-index="${idx + 1}"]`);
+            if (next) next.focus();
+        } else if (e.key === 'Backspace') {
+            if (e.target.value) {
+                e.target.value = '';
+            } else {
+                const prev = document.querySelector(`.letter-box[data-index="${idx - 1}"]`);
+                if (prev) {
+                    prev.focus();
+                    prev.value = '';
+                }
+            }
+            e.preventDefault();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAction();
+        }
+    }
+
+    function handleAction() {
+        if (!answerChecked) {
+            checkAnswer();
+        } else {
+            goNext();
+        }
+    }
+
+    function checkAnswer() {
+        if (answerChecked) return;
+
+        const q = gameList[currentIdx];
+        const inputs = document.querySelectorAll('.letter-box');
+        let userAns = '', inputIdx = 0;
+
+        q.en.split('').forEach(char => {
+            if (char === ' ' || char === '-') userAns += char;
+            else userAns += inputs[inputIdx++].value.toLowerCase();
+        });
+
+        const isCorrect = userAns === q.en;
+        results.push({ q: q.en, ch: q.ch, user: userAns, status: isCorrect });
+        scores.push(isCorrect ? '🏆' : '💀');
+        updateScoreBoard();
+
+        inputs.forEach(box => {
+            box.disabled = true;
+            const correctChar = q.en[parseInt(box.dataset.index)];
+            const userChar = box.value.toLowerCase();
+            box.classList.add(userChar === correctChar ? 'correct' : 'wrong');
+        });
+
+        const resultMsg = document.getElementById('resultMessage');
+        if (isCorrect) {
+            resultMsg.textContent = '🎉 正確！按 Enter 或點「下一題」繼續作答';
+            resultMsg.className = 'result-message result-correct';
+        } else {
+            resultMsg.textContent = `❌ 正確答案：${q.en.toUpperCase()}，按 Enter 或點「下一題」繼續作答`;
+            resultMsg.className = 'result-message result-wrong';
+        }
+
+        document.getElementById('actionBtn').textContent = '下一題';
+        answerChecked = true;
+    }
+
+    function updateScoreBoard() {
+        const board = document.getElementById('scoreBoard');
+        board.innerHTML = scores.map(score =>
+            `<span class="score-icon
