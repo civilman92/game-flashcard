@@ -223,7 +223,7 @@
         .status-correct { color: var(--success); font-weight: 700; }
         .status-wrong { color: var(--danger); font-weight: 700; }
 
-        /* 修正 setupPanel 樣式 */
+        /* 新增 setupPanel 樣式 */
         #groupSelection label { cursor: pointer; user-select: none; }
         #groupSelection input[type="checkbox"] { transform: scale(1.2); margin-right: 8px; }
 
@@ -324,6 +324,7 @@
         startBtn.disabled = true;
 
         try {
+            // 發送 GET 請求給後台 API 取得題組列表
             const res = await fetch(`${API_BASE}/groups`);
             if (!res.ok) throw new Error('讀取失敗：' + res.status);
             allGroups = await res.json(); 
@@ -370,6 +371,7 @@
         let selectedWordCount = 0;
         selectedGroups.forEach(checkbox => {
             const index = checkbox.dataset.index;
+            // 累加勾選題組中的單字數量
             selectedWordCount += allGroups[index].words?.length || 0;
         });
 
@@ -416,7 +418,6 @@
         // 隨機從 wordBank 中選取最多 20 個單字作為遊戲列表
         gameList = [...wordBank].sort(() => Math.random() - 0.5).slice(0, gameCount); 
         
-        // 檢查單字數量是否足夠
         if (gameList.length === 0) {
              alert("單字數量不足，遊戲無法進行。");
              return;
@@ -432,15 +433,10 @@
 
         document.getElementById('setupPanel').classList.remove('active');
         document.getElementById('gamePanel').classList.add('active');
-        // 修正進度條初始化
         document.getElementById('progressText').textContent = `0/${gameCount}`; 
         
         loadQuestion();
     }
-    
-    // ===================================================
-    // 遊戲運行邏輯 (修正 hardcoded 20)
-    // ===================================================
     
     // 載入題目 (修正)
     function loadQuestion() {
@@ -448,7 +444,7 @@
         const gameCount = gameList.length; // 遊戲總題數
 
         document.getElementById('questionTitle').textContent = `第 ${currentIdx + 1} 題`;
-        document.getElementById('progressText').textContent = `${currentIdx + 1}/${gameCount}`; // 修正
+        document.getElementById('progressText').textContent = `${currentIdx + 1}/${gameCount}`;
         document.getElementById('chineseHint').textContent = q.ch;
         document.getElementById('resultMessage').textContent = '';
         document.getElementById('resultMessage').className = 'result-message';
@@ -504,20 +500,11 @@
         }
     }
     
-    // ... (其他函數不變)
     
     // ===================================================
     // 網頁載入時執行
     // ===================================================
     document.addEventListener('DOMContentLoaded', loadGroupsForSetup);
-
-    // 原始碼中其他函數如 loadWordImage, createFallbackSvg, handleInput, handleLetterKeydown, 
-    // handleAction, checkAnswer, updateScoreBoard, pronounceWord, showFinalResults 保持不變
-    // 確保它們都在 <script> 標籤內
-    
-    // [以下為原始碼中其他未修改但仍需要的函數]
-    // ... (loadWordImage, useFallbackSvg, createFallbackSvg, handleInput, handleLetterKeydown, handleAction, checkAnswer, updateScoreBoard, pronounceWord, goNext, showFinalResults)
-    // 由於篇幅限制，這裡不重複貼上未修改的函數，但在實際檔案中它們應當存在。
 
     // 全域 Enter 處理 (保持不變)
     document.addEventListener('keydown', function(e) {
@@ -533,6 +520,7 @@
         handleAction();
     });
 
+    // 圖像處理函數 (保持不變)
     async function loadWordImage(word) {
         const img = document.getElementById('wordImage');
         const placeholder = document.getElementById('imagePlaceholder');
@@ -618,6 +606,7 @@
     }
 
 
+    // 字母輸入處理函數 (保持不變)
     function handleInput(e) {
         const input = e.target;
         let value = input.value.toLowerCase().replace(/[^a-z]/g, '');
@@ -630,6 +619,7 @@
         }
     }
 
+    // 鍵盤處理函數 (保持不變)
     function handleLetterKeydown(e) {
         const idx = parseInt(e.target.dataset.index);
 
@@ -656,6 +646,7 @@
         }
     }
 
+    // 完成 / 下一題處理函數 (保持不變)
     function handleAction() {
         if (!answerChecked) {
             checkAnswer();
@@ -664,6 +655,7 @@
         }
     }
 
+    // 檢查答案函數 (保持不變)
     function checkAnswer() {
         if (answerChecked) return;
 
@@ -701,7 +693,43 @@
         answerChecked = true;
     }
 
+    // 更新計分板函數 (保持不變)
     function updateScoreBoard() {
         const board = document.getElementById('scoreBoard');
         board.innerHTML = scores.map(score =>
-            `<span class="score-icon
+            `<span class="score-icon ${score === '🏆' ? 'trophy' : 'skull'}">${score}</span>`
+        ).join('');
+    }
+
+    // 發音函數 (保持不變)
+    function pronounceWord(fromButton = true) {
+        const q = gameList[currentIdx];
+        if (!q) return;
+
+        const msg = new SpeechSynthesisUtterance(q.en);
+        msg.lang = 'en-US';
+        msg.rate = 0.8;
+        msg.volume = 0.9;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(msg);
+    }
+
+    // 顯示最終結果函數 (保持不變)
+    function showFinalResults() {
+        document.getElementById('gamePanel').classList.remove('active');
+        document.getElementById('resultPanel').classList.add('active');
+        const tbody = document.querySelector('#summaryTable tbody');
+        tbody.innerHTML = '';
+        results.forEach(r => {
+            const row = tbody.insertRow();
+            row.insertCell(0).textContent = r.q;
+            row.insertCell(1).textContent = r.q;
+            row.insertCell(2).textContent = r.user || '(未填寫)';
+            const sCell = row.insertCell(3);
+            sCell.textContent = r.status ? '✅ 正確' : '❌ 錯誤';
+            sCell.className = r.status ? 'status-correct' : 'status-wrong';
+        });
+    }
+</script>
+</body>
+</html>
