@@ -1,294 +1,820 @@
-<!DOCTYPE html>
+[cite: 1] <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>猜字遊戲 - 自訂與隨機出題</title>
+    <title>英文單字快閃卡遊戲</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            background-color: #f4f4f9;
+        :root {
+            --primary: #5C6BC0;
+[cite: 2] --success: #66BB6A;
+            --danger: #EF5350;
+            --bg: #F5F7FA;
         }
-        .container {
-            width: 90%;
-            max-width: 600px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        /* 首頁/設定頁面 */
-        #settings-screen {
-            display: block;
-        }
-        #game-screen {
-            display: none;
-        }
-        .setting-section {
-            margin-bottom: 15px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        textarea {
-            width: 100%;
-            min-height: 100px;
-            padding: 10px;
+        * {
+            margin: 0;
+[cite: 3] padding: 0;
             box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+[cite: 4] }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+[cite: 5] min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+[cite: 6] }
+        .container {
+            background: white;
+[cite: 7] border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+            max-width: 900px;
+            width: 100%;
+            padding: 20px 24px;
+[cite: 8] }
+
+        .header {
+            display: flex;
+[cite: 9] justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
         }
-        label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
+        .progress-info {
+            font-size: 16px;
+[cite: 10] font-weight: 600;
+            color: #333;
+        }
+        .score-board {
+            display: flex;
+[cite: 11] flex-wrap: wrap;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+[cite: 12] }
+        .score-icon {
+            font-size: 22px;
+[cite: 13] animation: bounceIn 0.5s cubic-bezier(0.68,-0.55,0.265,1.55);
+        }
+        .trophy { color: #f39c12;
+[cite: 14] }
+        .skull { color: #e74c3c;
+[cite: 15] }
+        @keyframes bounceIn {
+            0% { transform: scale(0);
+[cite: 16] opacity: 0; }
+            50% { transform: scale(1.2);
+[cite: 17] }
+            100% { transform: scale(1); opacity: 1;
+[cite: 18] }
+        }
+
+        .panel { display: none;
+[cite: 19] }
+        .active { display: block;
+[cite: 20] }
+
+        .image-wrapper {
+            display: flex;
+[cite: 21] flex-direction: column;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .image-container {
+            width: 100%;
+[cite: 22] max-width: 520px;
+            height: 260px;
+            background: #f5f5f5;
+            border-radius: 16px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+[cite: 23] box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+        .image-container img {
+            max-width: 100%;
+[cite: 24] max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+        .image-placeholder {
+            font-size: 50px;
+[cite: 25] color: #adb5bd;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 0.7;
+[cite: 26] transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.04);
+[cite: 27] }
+        }
+        .image-status-text {
+            margin-top: 4px;
+[cite: 28] font-size: 12px;
             color: #555;
         }
-        .btn {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        /* 遊戲畫面 */
-        #question-display {
-            font-size: 1.2em;
-            margin-bottom: 15px;
+
+        .chinese-hint {
+            font-size: 32px;
+[cite: 29] font-weight: 800;
             text-align: center;
-            padding: 10px;
-            background-color: #e9ecef;
-            border-radius: 4px;
+            margin-bottom: 8px;
+            color: #333;
         }
-        #answer-input {
-            width: 100%;
-            padding: 10px;
-            font-size: 1.5em;
+
+        .letter-inputs {
+            display: flex;
+[cite: 30] justify-content: center;
+            gap: 6px;
+            margin: 14px 0;
+            flex-wrap: wrap;
+        }
+        .letter-box {
+            width: 46px;
+[cite: 31] height: 58px;
+            border: 3px solid #dee2e6;
+            border-radius: 10px;
             text-align: center;
-            margin-bottom: 15px;
+            font-size: 24px;
+            font-weight: 800;
             text-transform: uppercase;
+            outline: none;
+[cite: 32] transition: all 0.25s;
+            background: white;
         }
-        #message {
-            min-height: 30px;
+        .letter-box:focus {
+            border-color: var(--primary);
+[cite: 33] background: #e8f0fe;
+            box-shadow: 0 0 0 3px rgba(92,107,192,0.25);
+        }
+        .letter-box.correct {
+            background: var(--success);
+[cite: 34] color: white;
+            border-color: var(--success);
+        }
+        .letter-box.wrong {
+            background: var(--danger);
+[cite: 35] color: white;
+            border-color: var(--danger);
+        }
+
+        .result-message {
             text-align: center;
-            font-weight: bold;
-            margin-bottom: 15px;
+[cite: 36] font-size: 20px;
+            font-weight: 700;
+            margin: 8px 0 4px;
+            min-height: 28px;
+            padding: 8px 10px;
+            border-radius: 14px;
+[cite: 37] }
+        .result-correct {
+            background: #d4edda;
+[cite: 38] color: #155724;
         }
-        .correct {
-            color: green;
+        .result-wrong {
+            background: #f8d7da;
+[cite: 39] color: #721c24;
         }
-        .incorrect {
-            color: red;
+
+        .btn {
+            padding: 10px 26px;
+[cite: 40] border: none;
+            border-radius: 22px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.25s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+            margin: 4px;
+[cite: 41] }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #3f51b5);
+[cite: 42] color: white;
         }
-        #score-board {
-            text-align: center;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+[cite: 43] box-shadow: 0 8px 22px rgba(92,107,192,0.4);
+        }
+        .btn-speaker {
+            background: #fff176;
+[cite: 44] color: #333;
+            font-size: 18px;
+            box-shadow: 0 4px 14px rgba(255,235,59,0.4);
+        }
+        .btn-speaker:hover {
+            transform: translateY(-2px);
+[cite: 45] }
+
+        .summary-table {
+            width: 100%;
+[cite: 46] border-collapse: collapse;
+            margin-top: 12px;
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+[cite: 47] }
+        .summary-table th, .summary-table td {
+            padding: 10px;
+[cite: 48] border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .summary-table th {
+            background: linear-gradient(135deg, var(--primary), #3f51b5);
+[cite: 49] color: white;
+            font-weight: 700;
+        }
+        .status-correct { color: var(--success); font-weight: 700;
+[cite: 50] }
+        .status-wrong { color: var(--danger); font-weight: 700;
+[cite: 51] }
+
+        /* 新增 setupPanel 樣式 */
+        #groupSelection label { cursor: pointer;
+[cite: 52] user-select: none; }
+        #groupSelection input[type="checkbox"] { transform: scale(1.2); margin-right: 8px;
+[cite: 53] }
+        .custom-questions-box {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
             margin-top: 10px;
-            font-size: 1.1em;
-            color: #666;
+        }
+        .custom-questions-box textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+
+        @media (max-width: 768px) {
+            .container { padding: 16px;
+[cite: 54] }
+            .image-container { height: 220px;
+[cite: 55] }
+            .chinese-hint { font-size: 26px;
+[cite: 56] }
+            .letter-box { width: 40px; height: 52px; font-size: 20px;
+[cite: 57] }
+            .score-board { padding: 4px 8px;
+[cite: 58] }
+            .score-icon { font-size: 20px;
+[cite: 59] }
+            .btn { font-size: 14px; padding: 8px 20px;
+[cite: 60] }
+            .result-message { font-size: 18px;
+[cite: 61] }
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h1>猜字遊戲</h1>
-
-        <div id="settings-screen">
-            <h2>出題設定</h2>
-            
-            <div class="setting-section">
-                <label for="backend-group">選擇後台題組 (範例)</label>
-                <select id="backend-group">
-                    <option value="group1">英文基礎單字</option>
-                    <option value="group2">城市名稱</option>
-                </select>
-            </div>
-            
-            <div class="setting-section">
-                <label for="custom-questions">手動輸入考題 (格式: 單字/提示，每行一組)</label>
-                <textarea id="custom-questions" placeholder="例如: APPLE/水果&#10;BANANA/黃色的"></textarea>
-                <small>請注意格式：單字後接斜線 / 再接提示，每行一個。</small>
-            </div>
-            
-            <button class="btn" onclick="startGame()">開始遊戲</button>
+<div class="container">
+    <div id="setupPanel" class="panel active">
+        <h2 style="text-align: center; margin-bottom: 10px; font-size: 24px;">📚 英文單字快閃卡遊戲</h2>
+        <h3 style="font-size: 18px; margin-bottom: 8px;">1. 選擇後台題組來源：</h3>
+        
+        <div id="groupSelection" style="min-height: 120px; border: 2px dashed #dee2e6; border-radius: 10px; padding: 10px; margin-bottom: 12px; text-align: left;">
+            <p style="text-align:center; color:#555;">載入後台題組中...</p>
+        
+[cite: 62] </div>
+        
+        <h3 style="font-size: 18px; margin-bottom: 8px; margin-top: 15px;">2. 手動輸入考題 (可選)：</h3>
+        <div class="custom-questions-box">
+            <textarea id="customQuestionsInput" placeholder="請輸入自訂單字，格式：單字/中文提示，每行一組。例如：CAT/貓&#10;DOG/狗"></textarea>
+            <div id="customStatus" style="font-size:12px; color:#555; margin-top: 5px;"></div>
         </div>
-
-        <div id="game-screen">
-            <div id="question-display"></div>
-            <input type="text" id="answer-input" placeholder="請輸入答案" maxlength="15">
-            <button class="btn" id="submit-btn" onclick="checkAnswer()">完成 (Enter)</button>
-            <div id="message"></div>
-            <div id="score-board"></div>
-            <button class="btn" onclick="resetGame()" style="background-color: #6c757d;">回設定頁</button>
+        <div id="selectionStatus" style="font-size:14px; color:#5C6BC0; text-align:center; margin: 10px 0 8px;"></div>
+        <div style="text-align:center;">
+            <button class="btn btn-primary" id="startGameBtn" onclick="initGame()" disabled>🚀 開始挑戰</button>
         </div>
     </div>
 
-    <script>
-        // 後台模擬題庫 (實際應用中應從伺服器取得)
-        const BACKEND_QUESTIONS = {
-            group1: [
-                { word: "CAT", hint: "一種寵物" },
-                { word: "DOG", hint: "汪汪叫的動物" },
-                { word: "HOUSE", hint: "住的地方" }
-            ],
-            group2: [
-                { word: "TAIPEI", hint: "台灣的首都" },
-                { word: "TOKYO", hint: "日本的首都" },
-                { word: "SEOUL", hint: "韓國的首都" }
-            ]
-        };
+    <div id="gamePanel" class="panel">
+        <div class="header">
+            <div class="progress-info">
+           
+[cite: 63]      <div id="questionTitle" style="font-size: 20px; margin-bottom: 2px;">第 1 題</div>
+                <div>進度: <span id="progressText">0/20</span></div>
+            </div>
+            <div class="score-board" id="scoreBoard"></div>
+        </div>
 
-        let currentQuestionList = [];
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let isAnswerChecked = false; // 用於控制 Enter 鍵的狀態
+        <div class="image-wrapper">
+            <div class="image-container">
+              
+[cite: 64]   <img id="wordImage" src="" alt="單字圖片" style="display:none;">
+                <div id="imagePlaceholder" class="image-placeholder" style="display:none;">📷</div>
+            </div>
+            <div id="imageStatusText" class="image-status-text"></div>
+        </div>
+        
+        <div class="chinese-hint" id="chineseHint">載入中...</div>
+        
+        <div style="text-align: center;
+[cite: 65] margin-bottom: 4px;">
+            <button class="btn btn-speaker" onclick="pronounceWord()">🔊 再聽一次</button>
+        </div>
 
-        // --- 啟動遊戲邏輯 ---
-        function startGame() {
-            const selectedGroup = document.getElementById('backend-group').value;
-            const customQuestionsText = document.getElementById('custom-questions').value;
+        <div class="letter-inputs" id="letterInputs"></div>
+        
+        <div class="result-message" id="resultMessage"></div>
 
-            // 1. 合併後台選取題組
-            let combinedQuestions = [...BACKEND_QUESTIONS[selectedGroup]];
+        <div style="text-align:center;
+ margin-top:4px;">
+            <button class="btn btn-primary" id="actionBtn" onclick="handleAction()">完成</button>
+        </div>
+    </div>
 
-            // 2. 合併手動輸入考題
-            const customQuestions = parseCustomQuestions(customQuestionsText);
-            combinedQuestions = combinedQuestions.concat(customQuestions);
+    <div id="resultPanel" class="panel">
+        <h2 style="text-align: center;
+[cite: 67] font-size: 26px; margin-bottom: 10px;">🏆 挑戰完成！</h2>
+        <div style="max-height: 360px; overflow-y: auto;
+[cite: 68] margin: 10px 0;">
+            <table class="summary-table" id="summaryTable">
+                <thead><tr><th>單字</th><th>正確答案</th><th>您的回答</th><th>狀態</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div style="text-align:center;
+[cite: 69] margin-top:6px;">
+            <button class="btn btn-primary" onclick="location.reload()">🔄 重新開始</button>
+        </div>
+    </div>
+</div>
 
-            if (combinedQuestions.length === 0) {
-                alert("請至少輸入一組題目或選擇一個題組！");
+<script>
+    // 設置 API_BASE 為本地伺服器地址
+    const API_BASE = 'http://localhost:3000/api';
+    const UNSPLASH_ACCESS_KEY = 'XDJVghn6USaEIhWdqnBGQ1f8NXr0BRngG8_kI3eRlgw';
+
+    let allGroups = []; // 儲存從後台載入的所有題組
+    let wordBank = [], gameList = [], currentIdx = 0, results = [], scores = [];
+    let imageCache = new Map();
+    let answerChecked = false; // [cite: 70, 94]
+
+    // ===================================================
+    // 遊戲設定載入邏輯 (新增/修改)
+    // ===================================================
+
+    // 從後台載入題組並建立多選框
+    async function loadGroupsForSetup() {
+        const panel = document.getElementById('groupSelection');
+        const startBtn = document.getElementById('startGameBtn');
+        panel.innerHTML = '<p style="text-align:center;[cite: 71] color:#555;">載入後台題組中...</p>';
+        startBtn.disabled = true;
+
+        try {
+            // 發送 GET 請求給後台 API 取得題組列表
+            const res = await fetch(`${API_BASE}/groups`);
+            if (!res.ok) throw new Error('讀取失敗：' + res.status);
+            allGroups = await res.json(); 
+
+            if (allGroups.length [cite: 72] === 0) {
+                panel.innerHTML = '<p style="text-align:center;[cite: 73] color:#c00;">後台目前無任何題組。</p>';
                 return;
             }
 
-            // 3. 隨機排序
-            currentQuestionList = shuffleArray(combinedQuestions);
-
-            // 初始化遊戲狀態
-            currentQuestionIndex = 0;
-            score = 0;
-            isAnswerChecked = false;
-
-            // 切換畫面
-            document.getElementById('settings-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'block';
-
-            loadQuestion();
-        }
-
-        // 解析手動輸入的題目
-        function parseCustomQuestions(text) {
-            const questions = [];
-            const lines = text.toUpperCase().split('\n').filter(line => line.trim() !== '');
-
-            for (const line of lines) {
-                const parts = line.split('/');
-                if (parts.length === 2 && parts[0].trim() && parts[1].trim()) {
-                    questions.push({
-                        word: parts[0].trim(),
-                        hint: parts[1].trim()
-                    });
-                }
-            }
-            return questions;
-        }
-
-        // 隨機排序陣列 (Fisher-Yates 演算法)
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        // 載入下一題
-        function loadQuestion() {
-            if (currentQuestionIndex >= currentQuestionList.length) {
-                document.getElementById('question-display').innerHTML = "遊戲結束！🎉";
-                document.getElementById('message').innerHTML = `總分: ${score} / ${currentQuestionList.length}`;
-                document.getElementById('answer-input').style.display = 'none';
-                document.getElementById('submit-btn').style.display = 'none';
-                return;
-            }
-
-            const question = currentQuestionList[currentQuestionIndex];
-            document.getElementById('question-display').innerHTML = 
-                `<strong>第 ${currentQuestionIndex + 1} 題 / 共 ${currentQuestionList.length} 題:</strong> ${question.hint}`;
+            panel.innerHTML = '';
+            let totalWords = 0;
+            allGroups.forEach((g, index) => {
+          
+[cite: 74]       const wordCount = g.words?.length || 0;
+                totalWords += wordCount;
+                const checkboxId = `group-${index}`;
+                const div = document.createElement('div');
+                div.style.cssText = 'padding: 4px 0;';
+             
+[cite: 75]    div.innerHTML = `
+                    <input type="checkbox" id="${checkboxId}" data-index="${index}" onchange="updateStartButton()">
+                    <label for="${checkboxId}">
+                        ${g.name} (${wordCount} 詞)
+                    </label>
+    
+[cite: 76]             `;
+                panel.appendChild(div);
+            });
             
-            document.getElementById('answer-input').value = '';
-            document.getElementById('answer-input').focus();
-            document.getElementById('message').innerHTML = '';
-            document.getElementById('submit-btn').textContent = '完成 (Enter)';
-            document.getElementById('score-board').textContent = `得分: ${score}`;
-            isAnswerChecked = false; // 重設 Enter 鍵狀態
-            document.getElementById('answer-input').disabled = false;
+            // 監聽手動輸入框的變化，即時更新按鈕狀態
+            document.getElementById('customQuestionsInput').addEventListener('input', updateStartButton);
+            
+            updateStartButton(); // 初始檢查按鈕狀態
+            
+        } catch (err) {
+     
+[cite: 77]        console.error('載入題組失敗:', err);
+            panel.innerHTML = '<p style="text-align:center; color:#c00;">無法連線到後台伺服器。</p>';
+            document.getElementById('selectionStatus').textContent = '請確認後台 (server.js) 已啟動。';
+[cite: 78] }
+    }
+
+    // 解析手動輸入的題目
+    function parseCustomQuestions() {
+        const text = document.getElementById('customQuestionsInput').value;
+        const questions = [];
+        // 將輸入的單字強制轉為小寫，與題庫保持一致
+        const lines = text.toLowerCase().split('\n').filter(line => line.trim() !== '');
+
+        for (const line of lines) {
+            const parts = line.split('/');
+            // 檢查格式：必須有單字和提示
+            if (parts.length === 2 && parts[0].trim() && parts[1].trim()) {
+                questions.push({
+                    en: parts[0].trim().replace(/\s+/g, ' '), // 移除多餘空白
+                    ch: parts[1].trim()
+                });
+            }
         }
+        return questions;
+    }
 
-        // 檢查答案
-        function checkAnswer() {
-            const userAnswer = document.getElementById('answer-input').value.toUpperCase().trim();
-            const correctWord = currentQuestionList[currentQuestionIndex].word.toUpperCase().trim();
-            const messageElement = document.getElementById('message');
 
-            if (isAnswerChecked) {
-                // 如果已經檢查過答案，則跳到下一題 (這是第二個 Enter 或第二次點擊)
-                currentQuestionIndex++;
-                loadQuestion();
-                return;
-            }
-
-            // 第一次點擊/Enter：檢查答案
-            isAnswerChecked = true; // 鎖定狀態
-            document.getElementById('answer-input').disabled = true; // 禁用輸入框
-
-            if (userAnswer === correctWord) {
-                score++;
-                messageElement.className = 'correct';
-                messageElement.innerHTML = `✅ 正確！答案是 <strong>${correctWord}</strong>。`;
-            } else {
-                messageElement.className = 'incorrect';
-                messageElement.innerHTML = `❌ 錯誤。正確答案是 <strong>${correctWord}</strong>。`;
-            }
-
-            document.getElementById('score-board').textContent = `得分: ${score}`;
-            document.getElementById('submit-btn').textContent = '下一題 (Enter)';
-        }
-
-        // 監聽 Enter 鍵
-        document.getElementById('answer-input').addEventListener('keypress', function(event) {
-            // 確保只有在遊戲畫面時才觸發
-            if (document.getElementById('game-screen').style.display === 'block' && event.key === 'Enter') {
-                event.preventDefault(); // 防止默認的表單提交行為
-                checkAnswer(); // 觸發檢查答案/進入下一題的邏輯
-            }
+    // 檢查選擇的題組數量及自訂題數，並更新開始按鈕狀態 (修改)
+    function updateStartButton() {
+        const selectedGroups = document.querySelectorAll('#groupSelection input:checked');
+[cite: 79] const startBtn = document.getElementById('startGameBtn');
+        const statusDiv = document.getElementById('selectionStatus');
+        const customStatusDiv = document.getElementById('customStatus');
+        const maxQuestions = 20;[cite: 81] 
+        
+        let selectedWordCount = 0;
+[cite: 80] selectedGroups.forEach(checkbox => {
+            const index = checkbox.dataset.index;
+            // 累加勾選題組中的單字數量
+            selectedWordCount += allGroups[index].words?.length || 0;
         });
 
-        // 重設遊戲
-        function resetGame() {
-            document.getElementById('settings-screen').style.display = 'block';
-            document.getElementById('game-screen').style.display = 'none';
-            // 確保遊戲畫面重置
-            document.getElementById('answer-input').style.display = 'block';
-            document.getElementById('submit-btn').style.display = 'block';
+        // 取得自訂題數
+        const customQuestions = parseCustomQuestions();
+        const customWordCount = customQuestions.length;
+
+        const totalWords = selectedWordCount + customWordCount;
+
+        if (selectedGroups.length === 0 && customWordCount === 0) {
+            startBtn.disabled = true;
+[cite: 82] startBtn.textContent = '請選擇或輸入至少 5 個單字';
+            statusDiv.textContent = '未選擇任何題組。';
+        } else if (totalWords < 5) { // 至少5個詞才允許開始
+            startBtn.disabled = true;
+[cite: 83] startBtn.textContent = `單字數量不足 (目前 ${totalWords} 詞)`;
+            statusDiv.textContent = '建議選擇足夠的題組，以獲得完整遊戲體驗。';
+        } else {
+            startBtn.disabled = false;
+[cite: 84] // 顯示實際遊戲題數 (取總單字數與 20 的最小值)
+            startBtn.textContent = `🚀 開始挑戰 (${Math.min(maxQuestions, totalWords)} 題)`;
+[cite: 85] statusDiv.textContent = `已選後台題組 ${selectedGroups.length} 個，共 ${selectedWordCount} 詞。`;
         }
 
-        // 初始載入時設定狀態
-        resetGame();
+        customStatusDiv.textContent = `已輸入 ${customWordCount} 個自訂單字。`;
+    }
 
-    </script>
+    // 啟動遊戲 (修改：合併後台與自訂題目)
+    function initGame() {
+        const selectedCheckboxes = document.querySelectorAll('#groupSelection input:checked');
+[cite: 86] 
+        const customQuestions = parseCustomQuestions();
+        
+        wordBank = [];
+        
+        // 1. 加入選取的後台題組單字
+[cite: 88] selectedCheckboxes.forEach(checkbox => {
+            const index = checkbox.dataset.index;
+            // 將選取的題組中的所有單字加入 wordBank
+            wordBank.push(...(allGroups[index].words || []));
+        });
+
+        // 2. 加入手動輸入的單字
+        wordBank.push(...customQuestions);
+        
+[cite: 89] if (wordBank.length === 0) {
+             alert("您沒有選擇任何題組，也沒有輸入自訂單字，請檢查資料。");
+             return;
+[cite: 90] }
+
+        const gameCount = Math.min(20, wordBank.length);
+[cite: 91] 
+        // 3. 隨機從 wordBank 中選取最多 20 個單字作為遊戲列表
+        gameList = [...wordBank].sort(() => Math.random() - 0.5).slice(0, gameCount);
+[cite: 92] 
+        if (gameList.length === 0) {
+             alert("單字數量不足，遊戲無法進行。");
+             return;
+[cite: 93] }
+
+        imageCache.clear();
+        scores = [];
+        results = [];
+        currentIdx = 0;
+[cite: 94] answerChecked = false;
+
+        document.getElementById('scoreBoard').innerHTML = '';
+
+        document.getElementById('setupPanel').classList.remove('active');
+        document.getElementById('gamePanel').classList.add('active');
+        document.getElementById('progressText').textContent = `0/${gameCount}`; 
+        
+        loadQuestion();
+[cite: 95] }
+    
+    // 載入題目 (修正：維持不變，引用原程式碼)
+    function loadQuestion() {
+        const q = gameList[currentIdx];
+[cite: 96] const gameCount = gameList.length; // 遊戲總題數
+
+        document.getElementById('questionTitle').textContent = `第 ${currentIdx + 1} 題`;
+[cite: 97] document.getElementById('progressText').textContent = `${currentIdx + 1}/${gameCount}`;
+        document.getElementById('chineseHint').textContent = q.ch;
+        document.getElementById('resultMessage').textContent = '';
+        document.getElementById('resultMessage').className = 'result-message';
+        document.getElementById('actionBtn').textContent = '完成';
+
+        loadWordImage(q.en);
+[cite: 98] const container = document.getElementById('letterInputs');
+        container.innerHTML = '';
+
+        let inputCount = 0;
+[cite: 99] q.en.split('').forEach((char) => {
+            if (char === ' ' || char === '-') {
+                const s = document.createElement('span');
+                s.textContent = char;
+                s.style.cssText = 'width:24px;height:58px;display:flex;align-items:center;justify-content:center;';
+                container.appendChild(s);
+      
+[cite: 100]       } else {
+                const input = document.createElement('input');
+                input.className = 'letter-box';
+                input.maxLength = 1;
+                input.dataset.index = inputCount++;
+                input.addEventListener('input', handleInput);
+  
+[cite: 101]               input.addEventListener('keydown', handleLetterKeydown);
+                container.appendChild(input);
+            }
+        });
+[cite: 102] document.querySelectorAll('.letter-box').forEach(box => {
+            box.disabled = false;
+            box.className = 'letter-box';
+            box.value = '';
+        });
+[cite: 103] answerChecked = false;
+
+        // 自動發音 + 聚焦第一格
+        setTimeout(() => {
+            pronounceWord(false);
+            const firstInput = container.querySelector('input');
+            if (firstInput) firstInput.focus();
+        }, 400);
+[cite: 104] }
+    
+    // 跳到下一題 (修正：維持不變，引用原程式碼)
+    function goNext() {
+        currentIdx++;
+[cite: 105] const gameCount = gameList.length; // 遊戲總題數
+        if (currentIdx < gameCount) {
+            loadQuestion();
+[cite: 106] } else {
+            showFinalResults();
+[cite: 107] }
+    }
+    
+    
+    // ===================================================
+    // 網頁載入時執行
+    // ===================================================
+    document.addEventListener('DOMContentLoaded', loadGroupsForSetup);
+[cite: 108] // 全域 Enter 處理 (維持不變)
+    document.addEventListener('keydown', function(e) {
+        if (!document.getElementById('gamePanel').classList.contains('active')) return;
+        if (e.key !== 'Enter') return;
+
+        const active = document.activeElement;
+        // 如果焦點在輸入框（例如字母方塊），則由 handleLetterKeydown 處理
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
+            return;
+        }
+        
+        // 如果 Enter 發生在輸入框之外，則觸發 handleAction
+        e.preventDefault();
+        handleAction();
+   
+[cite: 109]  });
+
+    // 圖像處理函數 (維持不變)
+    async function loadWordImage(word) {
+        const img = document.getElementById('wordImage');
+[cite: 110] const placeholder = document.getElementById('imagePlaceholder');
+        const statusText = document.getElementById('imageStatusText');
+
+        if (imageCache.has(word)) {
+            img.src = imageCache.get(word);
+[cite: 111] img.style.display = 'block';
+            placeholder.style.display = 'none';
+            statusText.textContent = '圖片來源：Unsplash';
+            return;
+[cite: 112] }
+
+        img.style.display = 'none';
+        placeholder.style.display = 'block';
+        placeholder.innerHTML = '🔍 圖片載入中...';
+[cite: 113] statusText.textContent = '';
+
+        try {
+            const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(word)}&per_page=1&orientation=landscape&client_id=${UNSPLASH_ACCESS_KEY}`;
+[cite: 114] const res = await fetch(url);
+            if (!res.ok) throw new Error('Unsplash API error: ' + res.status);
+            const data = await res.json();
+[cite: 115] if (data.results && data.results.length > 0) {
+                const photo = data.results[0];
+[cite: 116] const imgUrl = photo.urls && (photo.urls.small || photo.urls.regular);
+                if (imgUrl) {
+                    imageCache.set(word, imgUrl);
+[cite: 117] img.src = imgUrl;
+                    img.onload = () => {
+                        placeholder.style.display = 'none';
+[cite: 118] img.style.display = 'block';
+                        statusText.textContent = '圖片來源：Unsplash';
+                    };
+                    img.onerror = () => {
+                        useFallbackSvg(word, img, placeholder, statusText);
+[cite: 119] };
+                    return;
+                }
+            }
+            useFallbackSvg(word, img, placeholder, statusText);
+[cite: 120] } catch (err) {
+            console.error('Unsplash 請求錯誤：', err);
+[cite: 121] useFallbackSvg(word, img, placeholder, statusText);
+        }
+    }
+
+    function useFallbackSvg(word, img, placeholder, statusText) {
+        const svgData = createFallbackSvg(word);
+[cite: 122] imageCache.set(word, svgData);
+        img.src = svgData;
+        img.onload = () => {
+            placeholder.style.display = 'none';
+[cite: 123] img.style.display = 'block';
+            statusText.textContent = '圖片來源：自動產生文字圖示';
+        };
+        img.onerror = () => {
+            placeholder.innerHTML = `📸 ${word.toUpperCase()}`;
+[cite: 124] statusText.textContent = '圖片載入失敗';
+        };
+    }
+
+    function createFallbackSvg(word) {
+        const safeWord = (word || '').toUpperCase();
+[cite: 125] const svg = `
+            <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1"/>
+               
+[cite: 126]          <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1"/>
+                    </linearGradient>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grad)"/>
+                <text x="50%" y="45%" font-size="56" fill="white" text-anchor="middle" font-weight="bold">
+            
+[cite: 127]         ${safeWord}
+                </text>
+                <text x="50%" y="62%" font-size="24" fill="rgba(255,255,255,0.85)" text-anchor="middle">
+                    Vocabulary Card
+                </text>
+            </svg>
+      
+[cite: 128]   `;
+        return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+    }
+
+
+    // 字母輸入處理函數 (維持不變)
+    function handleInput(e) {
+        const input = e.target;
+[cite: 129] let value = input.value.toLowerCase().replace(/[^a-z]/g, '');
+        input.value = value ? value.toUpperCase() : '';
+[cite: 130] if (input.value) {
+            const nextIdx = parseInt(input.dataset.index) + 1;
+[cite: 131] const nextInput = document.querySelector(`.letter-box[data-index="${nextIdx}"]`);
+            if (nextInput) nextInput.focus();
+        }
+    }
+
+    // 鍵盤處理函數 (維持不變)
+    function handleLetterKeydown(e) {
+        const idx = parseInt(e.target.dataset.index);
+[cite: 132] if (e.key === 'ArrowLeft') {
+            const prev = document.querySelector(`.letter-box[data-index="${idx - 1}"]`);
+[cite: 133] if (prev) prev.focus();
+        } else if (e.key === 'ArrowRight') {
+            const next = document.querySelector(`.letter-box[data-index="${idx + 1}"]`);
+[cite: 134] if (next) next.focus();
+        } else if (e.key === 'Backspace') {
+            if (e.target.value) {
+                e.target.value = '';
+[cite: 135] } else {
+                const prev = document.querySelector(`.letter-box[data-index="${idx - 1}"]`);
+[cite: 136] if (prev) {
+                    prev.focus();
+[cite: 137] prev.value = '';
+                }
+            }
+            e.preventDefault();
+[cite: 138] } else if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAction();
+[cite: 139] }
+    }
+
+    // 完成 / 下一題處理函數 (維持不變，此處已實現需求 1)
+    function handleAction() {
+        if (!answerChecked) {
+            checkAnswer();
+[cite: 140] } else {
+            goNext();
+[cite: 141] }
+    }
+
+    // 檢查答案函數 (維持不變)
+    function checkAnswer() {
+        if (answerChecked) return;
+[cite: 142] const q = gameList[currentIdx];
+        const inputs = document.querySelectorAll('.letter-box');
+        let userAns = '', inputIdx = 0;
+[cite: 143] q.en.split('').forEach(char => {
+            if (char === ' ' || char === '-') userAns += char;
+            else userAns += inputs[inputIdx++].value.toLowerCase();
+        });
+[cite: 144] const isCorrect = userAns === q.en;
+        results.push({ q: q.en, ch: q.ch, user: userAns, status: isCorrect });
+[cite: 145] scores.push(isCorrect ? '🏆' : '💀');
+        updateScoreBoard();
+
+        inputs.forEach(box => {
+            box.disabled = true;
+            const correctChar = q.en[parseInt(box.dataset.index)];
+            const userChar = box.value.toLowerCase();
+            box.classList.add(userChar === correctChar ? 'correct' : 'wrong');
+        });
+[cite: 146] const resultMsg = document.getElementById('resultMessage');
+        if (isCorrect) {
+            resultMsg.textContent = '🎉 正確！按 Enter 或點「下一題」繼續作答';
+[cite: 147] resultMsg.className = 'result-message result-correct';
+        } else {
+            resultMsg.textContent = `❌ 正確答案：${q.en.toUpperCase()}，按 Enter 或點「下一題」繼續作答`;
+[cite: 148] resultMsg.className = 'result-message result-wrong';
+        }
+
+        document.getElementById('actionBtn').textContent = '下一題';
+        answerChecked = true;
+[cite: 149] }
+
+    // 更新計分板函數 (維持不變)
+    function updateScoreBoard() {
+        const board = document.getElementById('scoreBoard');
+[cite: 150] board.innerHTML = scores.map(score =>
+            `<span class="score-icon ${score === '🏆' ? 'trophy' : 'skull'}">${score}</span>`
+        ).join('');
+[cite: 151] }
+
+    // 發音函數 (維持不變)
+    function pronounceWord(fromButton = true) {
+        const q = gameList[currentIdx];
+[cite: 152] if (!q) return;
+
+        const msg = new SpeechSynthesisUtterance(q.en);
+        msg.lang = 'en-US';
+        msg.rate = 0.8;
+        msg.volume = 0.9;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(msg);
+[cite: 153] }
+
+    // 顯示最終結果函數 (維持不變)
+    function showFinalResults() {
+        document.getElementById('gamePanel').classList.remove('active');
+[cite: 154] document.getElementById('resultPanel').classList.add('active');
+        const tbody = document.querySelector('#summaryTable tbody');
+        tbody.innerHTML = '';
+        results.forEach(r => {
+            const row = tbody.insertRow();
+            row.insertCell(0).textContent = r.q;
+            row.insertCell(1).textContent = r.q;
+            row.insertCell(2).textContent = r.user || '(未填寫)';
+            const sCell = row.insertCell(3);
+            sCell.textContent = r.status 
+[cite: 155]? '✅ 正確' : '❌ 錯誤';
+            sCell.className = r.status ? 'status-correct' : 'status-wrong';
+        });
+[cite: 156] }
+</script>
 </body>
 </html>
