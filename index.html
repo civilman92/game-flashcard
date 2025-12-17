@@ -34,7 +34,6 @@
             padding: 20px 24px;
         }
 
-        /* 進度與計分板 */
         .header {
             display: flex;
             justify-content: space-between;
@@ -62,7 +61,6 @@
         .panel { display: none; }
         .active { display: block; }
 
-        /* 圖片容器 */
         .image-container {
             width: 100%;
             max-width: 520px;
@@ -90,7 +88,6 @@
             color: #333;
         }
 
-        /* 字母輸入格 */
         .letter-inputs {
             display: flex;
             justify-content: center;
@@ -113,7 +110,6 @@
         .letter-box.correct { background: var(--success); color: white; border-color: var(--success); }
         .letter-box.wrong { background: var(--danger); color: white; border-color: var(--danger); }
 
-        /* 結果訊息 */
         .result-message {
             text-align: center;
             font-size: 20px;
@@ -126,7 +122,6 @@
         .result-correct { background: #d4edda; color: #155724; }
         .result-wrong { background: #f8d7da; color: #721c24; }
 
-        /* 按鈕樣式 */
         .btn {
             padding: 10px 26px;
             border: none;
@@ -139,7 +134,6 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-speaker { background: #fff176; margin-bottom: 10px; }
 
-        /* 結果頁面正確率 */
         .accuracy-badge {
             font-size: 40px;
             font-weight: 900;
@@ -191,7 +185,7 @@
         <div class="chinese-hint" id="chineseHint">載入中...</div>
         
         <div style="text-align: center;">
-            <button class="btn btn-speaker" onclick="pronounceWord()">🔊 讀音</button>
+            <button class="btn btn-speaker" onclick="pronounceWord(false)">🔊 讀音</button>
         </div>
 
         <div class="letter-inputs" id="letterInputs"></div>
@@ -222,7 +216,6 @@
     let allGroups = [], wordBank = [], gameList = [], currentIdx = 0;
     let results = [], scores = [], answerChecked = false;
 
-    // 載入後台題組
     async function loadGroups() {
         const panel = document.getElementById('groupSelection');
         try {
@@ -283,7 +276,6 @@
                         if(next) next.focus();
                     }
                 };
-                // 鍵盤事件監聽
                 input.onkeydown = (e) => {
                     if (e.key === 'Backspace' && !e.target.value) {
                         const prev = e.target.previousElementSibling;
@@ -291,17 +283,22 @@
                     }
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        handleAction(); // 觸發統一的動作處理
+                        handleAction();
                     }
                 };
                 container.appendChild(input);
             }
         });
-        container.firstChild.focus();
+
+        // 核心修復：先發音再聚焦
+        setTimeout(() => {
+            pronounceWord(true); // 自動讀音
+            if(container.firstChild) container.firstChild.focus();
+        }, 300);
+
         fetchImage(q.en);
     }
 
-    // 關鍵需求 1：處理 Enter 動作
     function handleAction() {
         if (!answerChecked) {
             checkAnswer();
@@ -315,21 +312,28 @@
         const inputs = document.querySelectorAll('.letter-box');
         let userAns = '';
         
-        // 組合使用者答案
         let inputIdx = 0;
-        q.en.split('').forEach(char => {
+        const charArray = q.en.split('');
+        charArray.forEach(char => {
             if(char === ' ') userAns += ' ';
-            else userAns += (inputs[inputIdx++].value || '').toLowerCase();
+            else {
+                userAns += (inputs[inputIdx] ? inputs[inputIdx].value : '').toLowerCase();
+                inputIdx++;
+            }
         });
 
         const isCorrect = userAns === q.en.toLowerCase();
         answerChecked = true;
         
-        // 更新 UI
-        inputs.forEach((input, i) => {
-            input.disabled = true;
-            const correctChar = q.en.replace(/ /g, '')[i].toLowerCase();
-            input.classList.add(input.value.toLowerCase() === correctChar ? 'correct' : 'wrong');
+        inputIdx = 0;
+        charArray.forEach(char => {
+            if(char !== ' ') {
+                const input = inputs[inputIdx];
+                input.disabled = true;
+                const correctChar = char.toLowerCase();
+                input.classList.add(input.value.toLowerCase() === correctChar ? 'correct' : 'wrong');
+                inputIdx++;
+            }
         });
 
         const msg = document.getElementById('resultMessage');
@@ -338,7 +342,7 @@
             msg.className = "result-message result-correct";
             scores.push('🏆');
         } else {
-            msg.textContent = `❌ 正確答案是: ${q.en.toUpperCase()} (再按一次 Enter 繼續)`;
+            msg.textContent = `❌ 正確答案是: ${q.en.toUpperCase()}`;
             msg.className = "result-message result-wrong";
             scores.push('💀');
         }
@@ -346,7 +350,9 @@
         results.push({ en: q.en, user: userAns, status: isCorrect });
         updateScoreBoard();
         document.getElementById('actionBtn').textContent = '下一題';
-        pronounceWord(); // 自動發音
+        
+        // 答題後再次發音（加深記憶）
+        pronounceWord(false);
     }
 
     function goNext() {
@@ -358,14 +364,13 @@
         }
     }
 
-    // 關鍵需求 2：計算正確率
     function showFinalResults() {
         document.getElementById('gamePanel').classList.remove('active');
         document.getElementById('resultPanel').classList.add('active');
         
         const correctCount = results.filter(r => r.status).length;
         const totalCount = results.length;
-        const accuracy = Math.round((correctCount / totalCount) * 100);
+        const accuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
         
         document.getElementById('accuracyDisplay').innerHTML = `
             正確率：${accuracy}%<br>
@@ -388,9 +393,12 @@
         document.getElementById('scoreBoard').innerHTML = scores.map(s => `<span class="score-icon ${s==='🏆'?'trophy':'skull'}">${s}</span>`).join('');
     }
 
-    function pronounceWord() {
+    function pronounceWord(isAuto = false) {
+        if (!gameList[currentIdx]) return;
+        window.speechSynthesis.cancel(); // 停止先前的發音
         const msg = new SpeechSynthesisUtterance(gameList[currentIdx].en);
         msg.lang = 'en-US';
+        msg.rate = 0.8;
         window.speechSynthesis.speak(msg);
     }
 
@@ -408,10 +416,8 @@
         } catch (e) {}
     }
 
-    // 全域 Enter 監聽 (當焦點不在 input 上時也能運作)
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && document.getElementById('gamePanel').classList.contains('active')) {
-            // 避免與 input 內的 Enter 重疊觸發
             if (e.target.tagName !== 'INPUT') {
                 handleAction();
             }
