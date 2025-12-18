@@ -212,6 +212,7 @@
 </div>
 
 <script>
+    // 已更新為 Render 網址
     const API_BASE = 'https://game-flashcard.onrender.com/api';
     let allGroups = [], wordBank = [], gameList = [], currentIdx = 0;
     let results = [], scores = [], answerChecked = false;
@@ -227,7 +228,7 @@
                 div.innerHTML = `<label><input type="checkbox" data-idx="${idx}" onchange="checkStartBtn()"> ${g.name} (${g.words.length} 詞)</label>`;
                 panel.appendChild(div);
             });
-        } catch (e) { panel.innerHTML = '無法連線伺服器'; }
+        } catch (e) { panel.innerHTML = '無法連線伺服器 (Render 喚醒中，請稍候並重新整理)'; }
     }
 
     function checkStartBtn() {
@@ -290,9 +291,8 @@
             }
         });
 
-        // 核心修復：先發音再聚焦
         setTimeout(() => {
-            pronounceWord(true); // 自動讀音
+            pronounceWord(true); 
             if(container.firstChild) container.firstChild.focus();
         }, 300);
 
@@ -350,8 +350,6 @@
         results.push({ en: q.en, user: userAns, status: isCorrect });
         updateScoreBoard();
         document.getElementById('actionBtn').textContent = '下一題';
-        
-        // 答題後再次發音（加深記憶）
         pronounceWord(false);
     }
 
@@ -395,7 +393,7 @@
 
     function pronounceWord(isAuto = false) {
         if (!gameList[currentIdx]) return;
-        window.speechSynthesis.cancel(); // 停止先前的發音
+        window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(gameList[currentIdx].en);
         msg.lang = 'en-US';
         msg.rate = 0.8;
