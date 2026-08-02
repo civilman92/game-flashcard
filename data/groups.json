@@ -1,6 +1,6 @@
 [
   {
-    "name": "Pocketmon",
+    "name": "Pocketmon 0730",
     "words": [
       {
         "en": "audible",
@@ -21,6 +21,34 @@
       {
         "en": "able",
         "ch": "能夠"
+      },
+      {
+        "en": "few",
+        "ch": "少許"
+      },
+      {
+        "en": "accept",
+        "ch": "接受"
+      },
+      {
+        "en": "detour",
+        "ch": "改道"
+      },
+      {
+        "en": "cream",
+        "ch": "乳霜"
+      },
+      {
+        "en": "extra",
+        "ch": "額外的"
+      },
+      {
+        "en": "spin",
+        "ch": "旋轉"
+      },
+      {
+        "en": "single",
+        "ch": "單一的"
       }
     ]
   }
