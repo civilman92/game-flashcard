@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "name": "_smoketest",
+    "words": [
+      {
+        "en": "hello",
+        "ch": "你好"
+      },
+      {
+        "en": "world",
+        "ch": "世界"
+      }
+    ]
+  }
+]
