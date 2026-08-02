@@ -1,14 +1,10 @@
 [
   {
-    "name": "_smoketest",
+    "name": "smoke_renamed",
     "words": [
       {
-        "en": "hello",
-        "ch": "你好"
-      },
-      {
-        "en": "world",
-        "ch": "世界"
+        "en": "hi",
+        "ch": "嗨"
       }
     ]
   }
