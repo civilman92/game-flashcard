@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "name": "Pocketmon",
+    "words": [
+      {
+        "en": "audible",
+        "ch": "可聽見的"
+      },
+      {
+        "en": "guess",
+        "ch": "猜"
+      }
+    ]
+  }
+]
