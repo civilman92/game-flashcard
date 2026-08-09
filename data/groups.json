@@ -75,5 +75,122 @@
         "ch": "溫和的"
       }
     ]
+  },
+  {
+    "name": "Pocketmon 0809",
+    "words": [
+      {
+        "en": "charge",
+        "ch": "收費"
+      },
+      {
+        "en": "edge",
+        "ch": "邊緣"
+      },
+      {
+        "en": "fossil",
+        "ch": "化石"
+      },
+      {
+        "en": "creak",
+        "ch": "嘎滋響"
+      },
+      {
+        "en": "spirit",
+        "ch": "精神, 靈魂"
+      },
+      {
+        "en": "truck",
+        "ch": "樹幹,後車廂"
+      },
+      {
+        "en": "machine",
+        "ch": "機器"
+      },
+      {
+        "en": "extend",
+        "ch": "擴充，延伸"
+      },
+      {
+        "en": "shock",
+        "ch": "震驚，電到"
+      },
+      {
+        "en": "incredible",
+        "ch": "極佳的"
+      },
+      {
+        "en": "squack",
+        "ch": "發牢騷"
+      },
+      {
+        "en": "trill",
+        "ch": "顫音"
+      },
+      {
+        "en": "danger",
+        "ch": "危險"
+      },
+      {
+        "en": "seed",
+        "ch": "種子"
+      },
+      {
+        "en": "ought to",
+        "ch": "應該..."
+      },
+      {
+        "en": "null",
+        "ch": "無效, 空值"
+      },
+      {
+        "en": "vine",
+        "ch": "藤蔓"
+      },
+      {
+        "en": "claw",
+        "ch": "爪子"
+      },
+      {
+        "en": "iron",
+        "ch": "鐵"
+      },
+      {
+        "en": "human",
+        "ch": "人類"
+      },
+      {
+        "en": "force",
+        "ch": "力量"
+      },
+      {
+        "en": "destruction",
+        "ch": "解構, 拆解"
+      },
+      {
+        "en": "create",
+        "ch": "創造"
+      },
+      {
+        "en": "palace",
+        "ch": "宮殿"
+      },
+      {
+        "en": "thunder",
+        "ch": "雷"
+      },
+      {
+        "en": "harbor",
+        "ch": "港口"
+      },
+      {
+        "en": "exist",
+        "ch": "存在"
+      },
+      {
+        "en": "device",
+        "ch": "裝置"
+      }
+    ]
   }
 ]
