@@ -192,5 +192,46 @@
         "ch": "裝置"
       }
     ]
+  },
+  {
+    "name": "Pocketmon 0810",
+    "words": [
+      {
+        "en": "hunt",
+        "ch": "打獵"
+      },
+      {
+        "en": "retch",
+        "ch": "乾嘔"
+      },
+      {
+        "en": "tense",
+        "ch": "緊張"
+      },
+      {
+        "en": "pinned",
+        "ch": "釘住"
+      },
+      {
+        "en": "versus",
+        "ch": "比對"
+      },
+      {
+        "en": "beat",
+        "ch": "打擊"
+      },
+      {
+        "en": "trail",
+        "ch": "蹤跡"
+      },
+      {
+        "en": "thud",
+        "ch": "砰"
+      },
+      {
+        "en": "groan",
+        "ch": "呻吟"
+      }
+    ]
   }
 ]
