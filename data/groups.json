@@ -269,5 +269,42 @@
         "ch": "自己"
       }
     ]
+  },
+  {
+    "name": "Pocketmon 0819",
+    "words": [
+      {
+        "en": "flash",
+        "ch": "閃光"
+      },
+      {
+        "en": "bracing",
+        "ch": "支撐"
+      },
+      {
+        "en": "essence",
+        "ch": "本質"
+      },
+      {
+        "en": "exciting",
+        "ch": "刺激"
+      },
+      {
+        "en": "fresh",
+        "ch": "新鮮"
+      },
+      {
+        "en": "hatch",
+        "ch": "孵"
+      },
+      {
+        "en": "debut",
+        "ch": "首演"
+      },
+      {
+        "en": "shine",
+        "ch": "閃耀"
+      }
+    ]
   }
 ]
